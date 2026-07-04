@@ -1,1 +1,256 @@
-<!DOCTYPE html><html lang="en-US"><head><title>Just a moment...</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="content-security-policy" content="default-src &#39;none&#39;; script-src &#39;nonce-a4myUPBEt9mfsLd8crPrcX&#39; &#39;unsafe-eval&#39; https://challenges.cloudflare.com; script-src-attr &#39;none&#39;; style-src &#39;unsafe-inline&#39;; img-src &#39;self&#39; https://challenges.cloudflare.com; connect-src &#39;self&#39; https://challenges.cloudflare.com; frame-src &#39;self&#39; https://challenges.cloudflare.com blob:; child-src &#39;self&#39; https://challenges.cloudflare.com blob:; worker-src blob:; form-action http: https:; base-uri &#39;self&#39;"><style>*{box-sizing:border-box;margin:0;padding:0}html{line-height:1.15;-webkit-text-size-adjust:100%;color:#313131;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"}body{display:flex;flex-direction:column;height:100vh;min-height:100vh}.main-content{margin:8rem auto;padding-left:1.5rem;max-width:60rem}@media (width <= 720px){.main-content{margin-top:4rem}}#challenge-error-text{background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgZmlsbD0ibm9uZSI+PHBhdGggZmlsbD0iI0IyMEYwMyIgZD0iTTE2IDNhMTMgMTMgMCAxIDAgMTMgMTNBMTMuMDE1IDEzLjAxNSAwIDAgMCAxNiAzbTAgMjRhMTEgMTEgMCAxIDEgMTEtMTEgMTEuMDEgMTEuMDEgMCAwIDEtMTEgMTEiLz48cGF0aCBmaWxsPSIjQjIwRjAzIiBkPSJNMTcuMDM4IDE4LjYxNUgxNC44N0wxNC41NjMgOS41aDIuNzgzem0tMS4wODQgMS40MjdxLjY2IDAgMS4wNTcuMzg4LjQwNy4zODkuNDA3Ljk5NCAwIC41OTYtLjQwNy45ODQtLjM5Ny4zOS0xLjA1Ny4zODktLjY1IDAtMS4wNTYtLjM4OS0uMzk4LS4zODktLjM5OC0uOTg0IDAtLjU5Ny4zOTgtLjk4NS40MDYtLjM5NyAxLjA1Ni0uMzk3Ii8+PC9zdmc+");background-repeat:no-repeat;background-size:contain;padding-left:34px}</style><meta http-equiv="refresh" content="360"></head><body><div class="main-wrapper" role="main"><div class="main-content"><noscript><div class="h2"><span id="challenge-error-text">Enable JavaScript and cookies to continue</span></div></noscript></div></div><script nonce="a4myUPBEt9mfsLd8crPrcX">(function(){window._cf_chl_opt = {cFPWv: 'b',cH: 'Hmx0TpkKyfcaTODqyJFpjXDnf581Sevti8pOqexnLMc-1783111329-1.2.1.1-pWj9H1_ShjqQHCbLVGoPHAeF5hbUmjnpmmayc3iIMJjVmXSDCN9q_fAsveBo2XIi',cITimeS: '1783111329',cN: 'a4myUPBEt9mfsLd8crPrcX',cRay: 'a158b713bd1a57fe',cTplB: '0',cTplC:0,cTplO:0,cTplV:5,cType: 'managed',cUPMDTk:"/api/organizations/.../SPEC.md?__cf_chl_tk=DpZiwtogl8LGLG5vqN3m1jgG.34PyeiWdo73gekyOxg-1783111329-1.0.1.1-4826gub_NC0PwTOiwZXkRPB5kQ95pMVCQK4EcradhOE",cvId: '3',cZone: 'claude.ai',fa:"/api/organizations/.../SPEC.md?__cf_chl_f_tk=DpZiwtogl8LGLG5vqN3m1jgG.34PyeiWdo73gekyOxg-1783111329-1.0.1.1-4826gub_NC0PwTOiwZXkRPB5kQ95pMVCQK4EcradhOE",md: 'kthkk1.SgeOXna4lEOYySHxVfQ56cAwz_fxNBLvlIRA-1783111329-1.2.1.1-yZ2ZupB5AXq7cw1Cgi5RT6Pw1SIh5BVrNAMt2zT2HoTX5HctccThA5rj3ZIlpTUO4SXl_7e747o1.j1PfUm_gETlbV0zpaKlbf3fcHtdeoIslHcP0fd4ZXI52U.D.rEpuK3N6ZHxXSXH.WAnUv2jstc8.1VpAIbnzxDYqOJhWbFIxo3GsXSkl2Ce4wJtbrxGcllD3pd5eldmIat43JzwIusiX2ROFuPwuhvr1Etocyqweli9LfYIw2wZ2Yl98TCC5PvlKAfjMfPyBUK4.KTYoSc686ulNEt0qv5AUNIhr0CqUhjGNUz7065YYWqrzOOjz5LPuMBeYXhxYY5JmKb5Wk87CNvcmYaVhkGlqE3DRaY6kKL.kflvAIpvk361iQDHUBmvY57fejCm4vkHtOvTn99Cd8RV2GsRJkDkXh_1gl3HHezzCeOrWpXTNvedCbxXh1jmBYEHlSik1K1ONrcuS6tmRBzbOKj_97eVzQVxmGKXGof5uEznWdgr.ILFyXaCxayURHoDWKh83KtkFrJ2BCe79Q_XNF9htvrxD2Q7pePKBWb_95CkPLftkX6qxh2.QFLdfjAw.mTDIerYa0Lj69JH85FdaUySfKqX8TxRLG_qeSAyji2QcfJ9NAdU1mqrEEsMol3PZmAANozEJPVCelUH8YaizwSor3Yz_QaTv3Ma36SQiRq1oz3cdIXlR3wykyGKvLyqBGGv_tKKdoVPyMN4LTz.vJvhMJUS8z68s4LCld3zUKSHpf6GpTYbzJWZZFFXWZWoQ9_jMcbnZHhykpMhRF2gVglrtLzPzbVH0fipsSbJsgfh0d8vqyf67VyW4MkUGHUuTkEuW3inPP1a6GlgEKYB.y.ShE29L4H5KMX9xEiDgRxqJlT4LzgXpdMREz8AcUoV3s_uy2nw_F1M4gR.AansfYzTd_Oqn.Thr1DyJAiOsAZOmt6TrLgxwosiiQBSxIjOROOAhUFs.Khwq1bTkVWpky2Y0lhhdq3NCkIPvA2GW35GxgScTvoTkaNx9JQlc_kG_B1JChr_.h42PffRbOUdAeI_AhjXV0Kd5BDOZab1N8vxtMzf.1V..GH.io1WXPHD6sjRFkRT3pVsIJP4bTr4tChyzymT0ZrdyfGxTYI6u5N0vUNuSL9eqIBU',mdrd: 'tYYm_0JGTf6Z5onw8gpIXVZ6HkRlMij1jfoWf7lA0ac-1783111329-1.2.1.1-C55MWrsnLfFM9xw494MEk7LAraDFzihpeb4GufaoRg_5KHWnwzZrk5QqOOiAEbh9yB6FGQzSjKcX.GWiN3CHK3d5.4C5KDU1vF9sKJ34oDsSJVBQHeEURR4IR2TSP6TlNjmVVdULlw7ab8JgweiIAeONFs.zHADdpgWaM4lhGXp9a4JyEt6km1lXYufMbZkHdIQAljwrFy5zxnFSVSNG6Q',};var a = document.createElement('script');a.nonce = 'a4myUPBEt9mfsLd8crPrcX';a.src = '/cdn-cgi/challenge-platform/h/b/orchestrate/chl_page/v1?ray=a158b713bd1a57fe';window._cf_chl_opt.cOgUHash = location.hash === '' && location.href.indexOf('#') !== -1 ? '#' : location.hash;window._cf_chl_opt.cOgUQuery = location.search === '' && location.href.slice(0, location.href.length - window._cf_chl_opt.cOgUHash.length).indexOf('?') !== -1 ? '?' : location.search;if (window.history && window.history.replaceState) {var ogU = location.pathname + window._cf_chl_opt.cOgUQuery + window._cf_chl_opt.cOgUHash;history.replaceState(null, null,"/api/organizations/.../SPEC.md?__cf_chl_rt_tk=DpZiwtogl8LGLG5vqN3m1jgG.34PyeiWdo73gekyOxg-1783111329-1.0.1.1-4826gub_NC0PwTOiwZXkRPB5kQ95pMVCQK4EcradhOE"+ window._cf_chl_opt.cOgUHash);a.onload = function() {history.replaceState(null, null, ogU);}}document.getElementsByTagName('head')[0].appendChild(a);}());</script></body></html>
+# Spec — API d'agrégation « Vélo partagé en France »
+
+Backend qui agrège **en temps quasi-réel** les données de tous les réseaux de véhicules en
+libre-service de France (GBFS), les met en cache, et expose **un seul endpoint JSON** que la
+landing page consomme. Conçu pour être implémenté avec Claude Code.
+
+---
+
+## 1. Pourquoi un backend (et pas du fetch navigateur)
+
+La page a d'abord tenté d'agréger les flux GBFS directement dans le navigateur. Résultat : **~3
+réseaux sur ~40 répondent**, le reste est bloqué par CORS (Lime, Tier, Vélib'… ne servent pas
+d'en-tête `Access-Control-Allow-Origin`). Il faut donc agréger **côté serveur** :
+
+- pas de CORS côté serveur (requêtes serveur-à-serveur) ;
+- une seule requête légère pour le visiteur (lecture d'un JSON en cache) ;
+- pas 80+ requêtes par visiteur vers les opérateurs (politesse + perf) ;
+- chargement instantané de la page.
+
+```
+Opérateurs GBFS ─┐
+PAN (data.gouv) ─┼─►  CRON (toutes les 2-5 min)  ─►  cache JSON  ─►  GET /api/stats  ─►  Page
+Votre BdD analytics ─┘        (agrégation)            (Redis/fichier/KV)
+```
+
+---
+
+## 2. Sources de données
+
+### 2.1 Liste des réseaux — API du PAN
+- **`GET https://transport.data.gouv.fr/api/datasets`** — JSON, **sans authentification ni quota**.
+- Pour chaque `dataset`, parcourir `dataset.resources[]` et retenir celles dont
+  `format === "gbfs"` et dont l'`url` pointe vers un `gbfs.json` (auto-discovery GBFS).
+- Dédupliquer les URLs (`Set`).
+
+### 2.2 Disponibilité temps réel — flux GBFS de chaque réseau
+Pour chaque `gbfs.json` :
+1. Le lire → trouver le tableau `feeds`. Attention aux **deux structures** :
+   - GBFS v3 : `data.feeds[]`
+   - GBFS v2 : `data.<lang>.feeds[]` (ex. `data.fr.feeds[]` ou `data.en.feeds[]`)
+2. Trouver le feed de statut des véhicules :
+   - GBFS v3 : `name === "vehicle_status"` → liste dans `data.vehicles[]`
+   - GBFS v2 : `name === "free_bike_status"` → liste dans `data.bikes[]`
+3. **Véhicule disponible** = `!is_reserved && !is_disabled`.
+4. Récupérer aussi, une fois par réseau (cache plus long, ~24 h) :
+   - `system_information` → `data.name`, `data.timezone`, `data.feed_contact_email`,
+     et si présent `data.center`/coordonnées. Sinon dériver une coordonnée représentative
+     depuis `station_information` (moyenne des stations) ou le centroïde des véhicules.
+
+> Le nom de ville / coordonnées sert à **placer les marqueurs sur la carte**. Si rien
+> d'exploitable, exclure le réseau de la carte mais le compter dans le total.
+
+### 2.3 Métriques d'usage (trajets / km / minutes) — API MDS Pony
+**GBFS ne fournit AUCUN historique d'usage.** `rides`, `km`, `minutes` (hier / 30 j / année /
+année préc.) proviennent de l'**API MDS Pony**, pas des flux ouverts GBFS.
+
+- **Endpoint** : `GET https://mds.getapony.com/v1/{ville}/trips` (ex. `…/v1/bordeaux/trips`).
+- **À appeler côté serveur uniquement** : API authentifiée (token Bearer MDS), **non-CORS**, et
+  `/trips` renvoie tous les trajets **paginés** — jamais depuis le navigateur (token exposé +
+  volume). C'est la raison d'être de ce backend.
+- **Authentification** : en-tête `Authorization: Bearer <MDS_TOKEN>` (cf. `MDS_TOKEN` en §8).
+- **Fenêtre temporelle** : suivre la convention MDS de l'instance (le plus souvent un paramètre
+  de temps type `?end_time=<ISO heure>` par tranche horaire, ou un couple `min_end_time` /
+  `max_end_time` en epoch ms — vérifier la doc de l'instance Pony). Itérer sur la plage voulue.
+- **Pagination** : suivre `links.next` (ou le curseur renvoyé) jusqu'à épuisement.
+
+**Calcul par trajet** (objet `trips[]` MDS) :
+- `rides`   = **nombre** de trajets
+- `km`      = Σ `trip_distance` (mètres) ÷ 1000
+- `minutes` = Σ `trip_duration` (secondes) ÷ 60
+
+**Agréger en 4 buckets** via `start_time` (ou `end_time`) de chaque trajet :
+`yesterday` (J-1, 00:00→24:00 fuseau local) · `month` (30 derniers jours glissants) ·
+`year` (année civile en cours) · `lastyear` (année civile précédente).
+
+> Recalcul lourd : agréger ces buckets **1×/heure ou 1×/jour** (pas à chaque requête visiteur) et
+> stocker le résultat dans le cache. Multi-villes : appeler `/v1/{ville}/trips` pour chaque ville
+> exploitée et **sommer** (Bordeaux pour démarrer).
+
+### 2.4 Série mensuelle « véhicules disponibles »
+La courbe de croissance (`available_monthly`) se calcule en **historisant la disponibilité GBFS** :
+échantillonner périodiquement `vehicles_available` (le cron le fait déjà) et stocker la **moyenne
+mensuelle** par réseau, puis sommer. À défaut d'historique au démarrage, dériver une moyenne depuis
+les snapshots accumulés.
+
+---
+
+## 3. Contrat de sortie — `GET /api/stats`
+
+La page lit **exactement** cette forme. Garder les clés stables.
+
+```jsonc
+{
+  "updated_at": "2026-06-27T09:52:10Z",   // ISO 8601, date de l'agrégation
+  "vehicles_available": 48213,            // somme temps réel, tous réseaux
+  "networks_count": 41,                   // nb de réseaux agrégés avec succès
+
+  // Par réseau — alimente la carte (1 marqueur = 1 réseau)
+  "networks": [
+    {
+      "id": "pony-evry",
+      "name": "Pony — Évry",
+      "operator": "Pony",
+      "city": "Évry",
+      "lat": 48.6309,
+      "lon": 2.4408,
+      "vehicles_available": 488
+    }
+    // …
+  ],
+
+  // Métriques d'usage (depuis l'API MDS Pony) — 4 périodes chacune
+  "rides":   { "yesterday": 1240, "month": 38200, "year": 214500, "lastyear": 356800 },
+  "km":      { "yesterday": 3120, "month": 96400, "year": 540300, "lastyear": 889200 },
+  "minutes": { "yesterday": 18600,"month": 561000,"year": 3140000,"lastyear": 5210000 },
+
+  // Série mensuelle « véhicules disponibles » (croissance) — ~30 derniers mois
+  "available_monthly": [
+    { "month": "2024-01", "avg_available": 210 },
+    { "month": "2024-02", "avg_available": 205 }
+    // …
+  ],
+
+  // Trajets par mois (depuis MDS) — alimente le graphe « trajets par mois » (12+ mois)
+  "rides_monthly": [
+    { "month": "2025-07", "rides": 12800 },
+    { "month": "2025-08", "rides": 11900 }
+    // …
+  ],
+
+  "stale": false   // true si l'agrégation a échoué et qu'on sert le dernier cache valide
+}
+```
+
+### Notes de contrat
+- **Toutes les valeurs numériques sont des entiers.** Le front formate en `fr-FR`.
+- `networks[]` peut être vide → la carte affiche juste un état « données indisponibles ».
+- Périodes : `yesterday`, `month` (30 derniers jours glissants), `year` (année civile en cours),
+  `lastyear` (année civile précédente). Garder ces 4 clés exactes.
+- `available_monthly[].month` au format `YYYY-MM`.
+- `rides_monthly[].month` au format `YYYY-MM` (12+ mois, calculé depuis MDS — cf. §2.3).
+- `networks[].operator` : nom de l'opérateur (Pony, Voi, Lime, Tier, Dott, Vélib'…) — sert à
+  colorer les marqueurs de carte. À défaut, le front le déduit du préfixe de `name`.
+
+---
+
+## 4. Logique d'agrégation (pseudocode)
+
+```
+async function aggregate():
+  datasets = GET https://transport.data.gouv.fr/api/datasets
+  gbfsUrls = unique( datasets.flatMap(d => d.resources)
+                     .filter(r => r.format == "gbfs" && /gbfs\.json/.test(r.url))
+                     .map(r => r.url) )
+
+  results = await Promise.allSettled( gbfsUrls.map(perNetwork) )   // concurrence limitée (voir §5)
+
+  total = 0; networks = []
+  for r in results where r.fulfilled && r.value != null:
+     total += r.value.vehicles_available
+     networks.push(r.value)
+
+  usage = await readUsageFromMDS()         // rides/km/minutes (cache horaire/journalier)
+  monthly = await readAvailableMonthly()   // série mensuelle (snapshots GBFS historisés)
+
+  payload = { updated_at: now(), vehicles_available: total,
+              networks_count: networks.length, networks, ...usage, stale: false }
+  cache.set("stats", payload)              // + garder une copie "last_good"
+
+async function perNetwork(gbfsUrl):
+  gj = await fetchJSON(gbfsUrl, timeout=6s)
+  feeds = gj.data.feeds ?? gj.data[firstKey(gj.data)].feeds          // v3 ou v2
+  statusUrl = feeds.find(f => f.name in ["vehicle_status","free_bike_status"])?.url
+  if !statusUrl: return null
+  vj = await fetchJSON(statusUrl, timeout=6s)
+  list = vj.data.vehicles ?? vj.data.bikes ?? []
+  available = list.filter(v => !v.is_reserved && !v.is_disabled).length
+  meta = await networkMeta(gbfsUrl, feeds)   // nom + lat/lon, caché ~24h
+  return { id: meta.id, name: meta.name, city: meta.city,
+           lat: meta.lat, lon: meta.lon, vehicles_available: available }
+```
+
+---
+
+## 5. Robustesse & politesse
+- **Timeout par requête** : 6 s (AbortController). Un réseau lent ne doit pas bloquer le batch.
+- **Concurrence limitée** : ~8–10 requêtes simultanées (p-limit) plutôt que tout en parallèle.
+- **`Promise.allSettled`** : un réseau en échec n'invalide jamais l'agrégat.
+- **Cache « dernier bon résultat »** : si une exécution renvoie 0 réseau, **servir le précédent**
+  avec `stale: true` plutôt qu'un JSON vide.
+- **Métadonnées réseau** (nom, coordonnées) en cache long (~24 h) — ne change quasi jamais.
+- **User-Agent** explicite (ex. `velo-france-stats/1.0 (contact@…)`) par courtoisie.
+- **Retry** léger (1 réessai) sur erreur réseau transitoire.
+
+---
+
+## 6. Endpoints
+
+| Méthode | Route | Rôle |
+|---|---|---|
+| `GET` | `/api/stats` | Lit le cache et renvoie le JSON (§3). **C'est ce que lit la page.** |
+| `GET` | `/api/health` | `{ ok, last_run, networks_count, stale }` pour le monitoring. |
+| `POST`| `/api/refresh` | (optionnel, protégé) force une ré-agrégation manuelle. |
+
+### En-têtes de `/api/stats`
+- `Content-Type: application/json; charset=utf-8`
+- `Access-Control-Allow-Origin: *` (ou le domaine de la page) — **indispensable** côté API.
+- `Cache-Control: public, max-age=60` (laisser le CDN/navigateur souffler 1 min).
+
+---
+
+## 7. Planification
+- **Cron** d'agrégation toutes les **2–5 min** (la disponibilité bouge en continu).
+- La série `available_monthly` peut être recalculée **1×/jour** (agrégat lourd côté analytics).
+- Découpler : `/api/stats` ne calcule **jamais** à la volée — il lit seulement le cache.
+
+---
+
+## 8. Pile technique suggérée (au choix)
+- **Node + TypeScript** : `fetch` natif (Node ≥ 18), `p-limit` pour la concurrence,
+  cron via `node-cron` ou un scheduler de plateforme (Vercel Cron, Cloud Scheduler, GitHub
+  Actions). Cache : Redis, Upstash, ou simple fichier JSON / KV.
+- **Python** : `httpx` (async) + `asyncio.Semaphore`, cron via APScheduler ou crontab.
+- Hébergement serverless OK (la fonction cron écrit le cache, la fonction `/api/stats` le lit).
+
+### Variables d'environnement
+```
+PAN_DATASETS_URL = https://transport.data.gouv.fr/api/datasets
+REFRESH_INTERVAL_SEC = 180
+FETCH_TIMEOUT_MS = 6000
+MAX_CONCURRENCY = 8
+MDS_BASE_URL = https://mds.getapony.com/v1
+MDS_CITIES = bordeaux            # liste des villes à sommer (séparées par des virgules)
+MDS_TOKEN = …                    # token Bearer MDS Pony
+USAGE_REFRESH_SEC = 3600         # ré-agrégation MDS (horaire) — distincte du cron GBFS
+CACHE_URL = …            # Redis/Upstash/KV (ou chemin fichier)
+ALLOW_ORIGIN = https://votre-domaine.gouv.fr
+```
+
+---
+
+## 9. Définition de « terminé »
+- [ ] `GET /api/stats` renvoie le JSON du §3, en < 50 ms (lecture cache).
+- [ ] Le cron peuple le cache et journalise nb de réseaux OK / en échec.
+- [ ] En cas d'échec total, `stale: true` + dernier bon résultat servi.
+- [ ] CORS activé sur `/api/stats`.
+- [ ] `rides/km/minutes` calculés depuis l'API MDS Pony (Σ par période).
+- [ ] `available_monthly` calculé depuis l'historisation des snapshots GBFS.
+- [ ] `/api/health` exploitable pour une alerte (ex. `stale` depuis > 30 min).
+
+---
+
+## 10. Côté page (déjà prêt)
+La landing lit l'endpoint via une prop **`statsUrl`**. Renseigne l'URL de `/api/stats` et la page
+remplace l'agrégation navigateur (fallback) par tes données serveur — compteurs, graphiques et
+carte (marqueurs depuis `networks[]`) se branchent automatiquement sur ce contrat.

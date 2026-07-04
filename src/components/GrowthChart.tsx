@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { DailyPoint } from '../types';
+import type { VehiclesHistoryPoint as DailyPoint } from '../types';
 
 const MONTHS_FR = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
 const SEASONAL  = [-.16, -.20, -.04, .10, .22, .27, .24, .19, .08, -.02, -.12, -.18];

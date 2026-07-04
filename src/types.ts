@@ -10,9 +10,23 @@ export interface MonthlyPoint {
   avg_available: number;
 }
 
-export interface DailyPoint {
-  day: string;      // YYYY-MM-DD
+// Points de l'endpoint /api/history/daily (graphe de croissance)
+export interface VehiclesHistoryPoint {
+  day: string;       // YYYY-MM-DD
   vehicles: number;
+}
+
+// Granularité journalière du champ "daily" dans /api/stats
+export interface DailyPoint {
+  day: string;                   // YYYY-MM-DD
+  available_15h: number | null;  // Σ véhicules snapshot ~15h UTC
+  rides: number | null;          // Σ trajets MDS ce jour
+}
+
+export interface DailyStats {
+  yesterday: DailyPoint;
+  this_month: DailyPoint[];
+  last_month: DailyPoint[];
 }
 
 export interface Network {
@@ -34,6 +48,7 @@ export interface StatsPayload {
   km: PeriodMetric;
   minutes: PeriodMetric;
   available_monthly: MonthlyPoint[];
+  daily?: DailyStats;
   stale: boolean;
 }
 

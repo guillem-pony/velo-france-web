@@ -75,8 +75,13 @@ Conteneur : `max-width:1160px; margin:0 auto; padding:0 24px 80px`.
    Barres verticales flex, `gap:10px`, hauteur zone 170px, barres ivoire `0.85`, coin haut 4px,
    label mois (J F M…) sous chaque barre.
 6. **Graphe « véhicules disponibles par mois »** — même carte. En-tête : titre + pastille accent +
-   « +N % depuis 2024 ». ~30 barres, `gap:4px`, hauteur 150px ; **barres de l'année courante en
+   « +N % depuis 2024 ». ~30 barres, `gap:4px`, hauteur zone 170px ; **barres de l'année courante en
    accent, années passées en ivoire `0.42`**. Sous l'axe : `2024 · 2025 · 2026` (space-between).
+   **Valeur affichée DANS chaque barre** : le nombre de véhicules, écrit **verticalement**
+   (`writing-mode:vertical-rl; transform:rotate(180deg)`), 600/9px, `tabular-nums`, aligné en haut
+   de la barre (`padding-top:4px`). Couleur du texte : raisin `#294754` sur les barres accent (2026),
+   raisin `rgba(41,71,84,.85)` sur les barres ivoire. Hauteur mini de barre 20px pour loger le
+   nombre. Formatage `fr-FR`.
 7. **Carte** — en-tête (titre « Où roule-t-on ? » + sous-titre + légende « réseau actif ») puis
    conteneur `height:520px`, `border-radius:18px`, bord ivoire `0.14`.
 8. **Footer** — bord haut ivoire `0.12`, `padding-top:24px`, flex `space-between` : bloc
@@ -125,10 +130,35 @@ joue sur les surfaces translucides).
   - `line` eau → `#1a2f39` ; autres `line` → `rgba(246,249,237,0.10)`
   - `symbol` → texte `rgba(246,249,237,0.5)`, halo `rgba(34,60,71,0.85)` largeur 1.2
 - **Marqueurs** : **un point par réseau, taille UNIFORME** (pas proportionnel à la flotte).
-  Rond **13×13px**, fond accent, bord `2px #F6F9ED`, halo `box-shadow:0 0 0 4px <accent>26` +
-  `0 1px 4px rgba(0,0,0,.35)`, `cursor:pointer`.
-- **Popup** (au clic/survol, `closeButton:false`) : nom du réseau (600/12px raisin) + « N véhicules
-  dispo » (500/11px raisin). CSS popup : `border-radius:10px`, `padding:9px 13px`, ombre douce.
+  Rond **13×13px**, bord `2px #F6F9ED`, halo `box-shadow:0 0 0 4px <couleur>26` +
+  `0 1px 4px rgba(0,0,0,.35)`, `cursor:pointer`. **La couleur dépend de l'OPÉRATEUR** (voir table).
+- **Couleurs par opérateur** (déduites du champ `operator` du réseau, sinon du préfixe du nom) :
+
+  | Opérateur | Couleur |
+  |---|---|
+  | Pony | `#22c4d6` (cyan) |
+  | Voi | `#ff6f61` (corail) |
+  | Lime | `#3fae4a` (vert) |
+  | Dott | `#2f6bff` (bleu) |
+  | Vélib' | `#e2001a` (rouge) |
+  | Bird | `#12d1c4` · Bolt `#34d186` | (extensible) |
+  | *Inconnu / minoritaire* | `#9aa7ad` (gris) — fallback |
+
+  Rendre cette table facilement extensible (nouvel opérateur = nouvelle entrée).
+- **Règle de seuil (`MIN_SYSTEMS = 2`)** : un opérateur présent sur **moins de 2 systèmes** en
+  France est affiché **en gris** (`#9aa7ad`) sur la carte **et exclu de la légende**. Compter le
+  nombre de réseaux par opérateur (`operatorCounts`) ; couleur de marque uniquement si
+  `count >= 2`. Seuil facile à ajuster.
+- **Légende** : dynamique, une pastille + libellé par opérateur **atteignant le seuil** (≥ 2
+  systèmes), dédupliquée et **triée par nombre de systèmes décroissant**, en haut à droite du bloc
+  carte. Les opérateurs sous le seuil n'y figurent pas.
+- **Popup** (au clic/survol, `closeButton:false`) : pastille couleur opérateur + **nom de
+  l'opérateur** (600/12px raisin), puis ville (500/11px), puis « N véhicules dispo » (500/11px).
+  CSS popup : `border-radius:10px`, `padding:9px 13px`, ombre douce.
+- ⚠ **Chargement de la carte** : ne PAS se reposer uniquement sur l'événement `map.on('load')`
+  pour ajouter marqueurs/recoloration — selon l'environnement (iframe sandbox, opaque origin) il
+  peut ne jamais se déclencher. Écouter `load` **et** `styledata`, **et** prévoir un polling de
+  secours sur `map.isStyleLoaded()` (toutes les ~250ms, ~40 essais) qui appelle la même routine.
 - Source des marqueurs : `networks[]` de `/api/stats` (`{name, city, lat, lon,
   vehicles_available}`). Prévoir un **fallback** (liste de villes de référence) si vide, et un
   état « données indisponibles » discret.
@@ -147,6 +177,43 @@ La page lit **`/api/stats`** via une config `statsUrl`. Contrat consommé :
 
 Toutes les valeurs sont des entiers ; le front formate en `fr-FR`. Fallback sans `statsUrl` :
 agrégation GBFS navigateur + placeholders (utile en dev seulement).
+
+### 7.1 ⚠ Rendre les 5 blocs dynamiques (ne pas laisser en dur)
+
+Dans la maquette de référence, **Trajets, Kilomètres, Minutes, « Trajets par mois » et « Véhicules
+disponibles par mois » sont des valeurs placeholder codées en dur** — ils paraissent figés parce
+qu'aucune source ne les alimente encore. GBFS ne porte aucun historique d'usage ; seul le chiffre
+héro (vélos dispo) est réellement temps réel.
+
+**Objectif : ces 5 blocs doivent être 100 % pilotés par `/api/stats`. Aucune valeur numérique en
+dur dans le composant.**
+
+| Bloc UI | Champ `/api/stats` | Source backend |
+|---|---|---|
+| Trajets (4 périodes) | `rides.{yesterday,month,year,lastyear}` | API MDS Pony (Σ nb de trajets) |
+| Kilomètres | `km.{…}` | MDS (Σ `trip_distance` ÷ 1000) |
+| Minutes | `minutes.{…}` | MDS (Σ `trip_duration` ÷ 60) |
+| Graphe « Trajets par mois » | `rides_monthly[]` *(à ajouter au contrat)* | MDS agrégé par mois |
+| Graphe « Véhicules dispo/mois » | `available_monthly[]` | snapshots GBFS historisés |
+
+À faire par Claude Code :
+1. **Supprimer tout tableau/objet de données en dur** du composant (les `rides/km/minutes`
+   d'exemple, la série `monthly`, la série générée). Remplacer par un `fetch(statsUrl)`.
+2. **État de chargement** : afficher un skeleton/`—` tant que `/api/stats` n'a pas répondu ; ne
+   jamais afficher de fausse valeur.
+3. **Sélecteur de période** : lit `rides[period]`, `km[period]`, `minutes[period]` depuis la
+   réponse — pas de recalcul local.
+4. **Graphe « Trajets par mois »** : ajouter au contrat backend un tableau
+   `rides_monthly: [{ "month":"YYYY-MM", "rides": <int> }]` (12+ mois) et le mapper aux barres.
+   *(Le graphe « véhicules dispo/mois » utilise `available_monthly`, déjà au contrat.)*
+5. **Rafraîchissement** : re-`fetch` `/api/stats` toutes les ~60 s pour garder le chiffre live et
+   les compteurs à jour (avec re-animation douce). Respecter `prefers-reduced-motion`.
+6. **Gestion d'erreur / `stale:true`** : si l'API échoue, garder la dernière valeur connue et
+   afficher un indicateur « données indisponibles / différées » discret — jamais un placeholder.
+
+> En résumé : le front ne doit contenir **aucune donnée** ; il ne fait que lire, formater (`fr-FR`)
+> et animer ce que renvoie `/api/stats`. C'est le backend (`SPEC-backend-agregation.md`) qui rend
+> ces blocs vivants en remplissant MDS + l'historique GBFS.
 
 ---
 
