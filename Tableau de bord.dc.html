@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;background:#294754;font-family:'Poppins',system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.3;transform:scale(.6);}}
+.maplibregl-popup-content{border-radius:10px;padding:9px 13px;box-shadow:0 6px 20px rgba(0,0,0,.25);}
+.maplibregl-ctrl-attrib{font:400 10px 'Poppins';}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#294754;color:#F6F9ED;padding:0 24px 80px">
+  <div style="max-width:1160px;margin:0 auto">
+
+    <!-- ===== NAV ===== -->
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:26px 0 14px;border-bottom:1px solid rgba(246,249,237,.12)">
+      <div style="display:flex;align-items:center;gap:11px">
+        <div style="width:26px;height:26px;border-radius:7px;background:#F6F9ED;display:flex;align-items:center;justify-content:center;color:#294754;font:800 15px 'Poppins'">V</div>
+        <div style="font:700 14px 'Poppins';letter-spacing:.04em">VÉLO PARTAGÉ · FRANCE</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;background:{{ liveBadgeBg }};border:1px solid {{ liveBadgeBorder }};padding:6px 12px;border-radius:999px">
+        <span style="width:7px;height:7px;border-radius:50%;background:{{ accent }};animation:pulse 1.6s ease-in-out infinite;display:inline-block"></span>
+        <span style="font:600 10px 'Poppins';color:#F6F9ED;letter-spacing:.06em">EN DIRECT · {{ updatedFmt }}</span>
+      </div>
+    </div>
+
+    <!-- ===== HERO ===== -->
+    <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:48px;align-items:end;padding:56px 0 48px">
+      <div>
+        <div style="font:600 11px 'Poppins';letter-spacing:.16em;color:rgba(246,249,237,.5)">NOMBRE DE VÉLOS EN LIBRE-SERVICE EN FRANCE</div>
+        <div style="font:800 clamp(64px,11vw,132px)/0.88 'Poppins';font-variant-numeric:tabular-nums;letter-spacing:-.03em;margin-top:12px">{{ vehiclesFmt }}</div>
+        <div style="display:flex;align-items:center;gap:9px;margin-top:16px">
+          <span style="width:9px;height:9px;border-radius:50%;background:{{ accent }};animation:pulse 1.6s ease-in-out infinite;display:inline-block"></span>
+          <span style="font:500 15px 'Poppins';color:rgba(246,249,237,.72)">en libre-service dans {{ networksFmt }} territoires</span>
+        </div>
+      </div>
+      <div style="padding-bottom:10px">
+        <div style="font:400 15px/1.6 'Poppins';color:rgba(246,249,237,.66);text-wrap:pretty">Chaque jour, des milliers de vélos et trottinettes en libre-service circulent en France. Cette page agrège en temps réel les données ouvertes <b style="color:#F6F9ED;font-weight:600">GBFS</b> de tous les réseaux, publiées sur transport.data.gouv.fr.</div>
+      </div>
+    </div>
+
+    <!-- ===== PÉRIODE + STATS ===== -->
+    <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center;margin-bottom:22px">
+      <div style="font:600 13px 'Poppins';color:rgba(246,249,237,.7)">Usage du réseau</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <sc-for list="{{ periods }}" as="p" hint-placeholder-count="4">
+          <button onClick="{{ p.onClick }}" style="{{ p.style }}">{{ p.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+      <div style="background:rgba(246,249,237,.05);border:1px solid rgba(246,249,237,.12);border-radius:16px;padding:24px 22px">
+        <div style="font:500 12px 'Poppins';color:rgba(246,249,237,.55)">Trajets</div>
+        <div style="font:700 clamp(30px,4vw,44px) 'Poppins';font-variant-numeric:tabular-nums;margin-top:10px;letter-spacing:-.01em">{{ ridesFmt }}</div>
+        <div style="font:400 11px 'Poppins';color:rgba(246,249,237,.4);margin-top:6px">{{ periodLabel }}</div>
+      </div>
+      <div style="background:rgba(246,249,237,.05);border:1px solid rgba(246,249,237,.12);border-radius:16px;padding:24px 22px">
+        <div style="font:500 12px 'Poppins';color:rgba(246,249,237,.55)">Kilomètres parcourus</div>
+        <div style="font:700 clamp(30px,4vw,44px) 'Poppins';font-variant-numeric:tabular-nums;margin-top:10px;letter-spacing:-.01em">{{ kmFmt }}</div>
+        <div style="font:400 11px 'Poppins';color:rgba(246,249,237,.4);margin-top:6px">{{ periodLabel }}</div>
+      </div>
+      <div style="background:rgba(246,249,237,.05);border:1px solid rgba(246,249,237,.12);border-radius:16px;padding:24px 22px">
+        <div style="font:500 12px 'Poppins';color:rgba(246,249,237,.55)">Minutes pédalées</div>
+        <div style="font:700 clamp(30px,4vw,44px) 'Poppins';font-variant-numeric:tabular-nums;margin-top:10px;letter-spacing:-.01em">{{ minutesFmt }}</div>
+        <div style="font:400 11px 'Poppins';color:rgba(246,249,237,.4);margin-top:6px">{{ periodLabel }}</div>
+      </div>
+    </div>
+
+    <!-- ===== TREND : trajets par mois ===== -->
+    <div style="background:rgba(246,249,237,.05);border:1px solid rgba(246,249,237,.12);border-radius:16px;padding:26px 26px 22px;margin-top:16px">
+      <div style="font:600 11px 'Poppins';letter-spacing:.12em;color:rgba(246,249,237,.5);margin-bottom:20px">TRAJETS PAR MOIS — 12 DERNIERS MOIS</div>
+      <div style="display:flex;align-items:flex-end;gap:10px;height:170px;width:100%">
+        <sc-for list="{{ barsB }}" as="b" hint-placeholder-count="12">
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:9px;height:100%">
+            <div style="{{ b.style }}"></div>
+            <div style="font:500 10px 'Poppins';color:rgba(246,249,237,.42)">{{ b.label }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- ===== CROISSANCE : véhicules disponibles par mois ===== -->
+    <div style="background:rgba(246,249,237,.05);border:1px solid rgba(246,249,237,.12);border-radius:16px;padding:26px 26px 22px;margin-top:16px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:20px;flex-wrap:wrap;gap:8px">
+        <div style="font:600 11px 'Poppins';letter-spacing:.12em;color:rgba(246,249,237,.5)">VÉHICULES DISPONIBLES PAR MOIS — LA FLOTTE GRANDIT</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="width:10px;height:10px;border-radius:3px;background:{{ accent }};display:inline-block"></span>
+          <span style="font:600 12px 'Poppins';color:{{ accent }}">+{{ availGrowthPct }} % depuis 2024</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:4px;height:150px;width:100%">
+        <sc-for list="{{ availBars }}" as="b" hint-placeholder-count="30">
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%"><div style="{{ b.style }}"></div></div>
+        </sc-for>
+      </div>
+      <div style="display:flex;justify-content:space-between;font:500 10px 'Poppins';color:rgba(246,249,237,.42);margin-top:10px"><span>2024</span><span>2025</span><span>2026</span></div>
+    </div>
+
+    <!-- ===== CARTE ===== -->
+    <div style="margin-top:48px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:18px">
+        <div>
+          <div style="font:700 22px 'Poppins';letter-spacing:-.01em">Où roule-t-on&nbsp;?</div>
+          <div style="font:400 13px 'Poppins';color:rgba(246,249,237,.55);margin-top:4px">Un marqueur par réseau de véhicules en libre-service</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="width:11px;height:11px;border-radius:50%;background:{{ accent }};border:1.5px solid rgba(246,249,237,.9);display:inline-block"></span>
+          <span style="font:500 12px 'Poppins';color:rgba(246,249,237,.6)">réseau actif</span>
+        </div>
+      </div>
+      <div id="mlmap" style="width:100%;height:520px;border-radius:18px;overflow:hidden;border:1px solid rgba(246,249,237,.14);background:#1d333d"></div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <div style="margin-top:48px;padding-top:24px;border-top:1px solid rgba(246,249,237,.12);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div style="font:400 12px/1.7 'Poppins';color:rgba(246,249,237,.5);max-width:620px">
+        <b style="color:rgba(246,249,237,.75);font-weight:600">Sources.</b> Disponibilité temps réel : flux ouverts GBFS agrégés via l'API du Point d'Accès National (transport.data.gouv.fr). Trajets, kilomètres et minutes : données d'usage agrégées. Fond cartographique : © OpenStreetMap, © CARTO.
+      </div>
+      <div style="font:500 12px 'Poppins';color:rgba(246,249,237,.5)">Mis à jour : {{ updatedFmt }}</div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:1600},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#5fcf95&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#5fcf95&quot;,&quot;#6aa9d6&quot;,&quot;#e0a04d&quot;,&quot;#d98b5f&quot;],&quot;section&quot;:&quot;Apparence&quot;},&quot;animateCounters&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Comportement&quot;},&quot;defaultPeriod&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;year&quot;,&quot;options&quot;:[&quot;yesterday&quot;,&quot;month&quot;,&quot;year&quot;,&quot;lastyear&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Comportement&quot;},&quot;statsUrl&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Données&quot;}}">
+class Component extends DCLogic {
+  state = { period: 'year', live: null, networks: 0, liveLoading: true, display: { vehicles: 0, rides: 0, km: 0, minutes: 0 }, updatedAt: null, netList: null };
+
+  data = {
+    vehiclesFallback: 24000,
+    networksFallback: 38,
+    rides:   { yesterday: 1240,  month: 38200,  year: 214500,  lastyear: 356800 },
+    km:      { yesterday: 3120,  month: 96400,  year: 540300,  lastyear: 889200 },
+    minutes: { yesterday: 18600, month: 561000, year: 3140000, lastyear: 5210000 },
+    monthly: [12800, 11900, 15600, 18900, 22400, 24800, 23100, 21900, 19800, 17600, 14200, 11500],
+  };
+
+  // Réseaux de référence pour la carte (placeholder — remplacés par networks[] de l'endpoint)
+  cities = [
+    { name: 'Paris', city: 'Paris', lat: 48.8566, lon: 2.3522, vehicles: 9200 },
+    { name: 'Lyon', city: 'Lyon', lat: 45.7640, lon: 4.8357, vehicles: 4300 },
+    { name: 'Marseille', city: 'Marseille', lat: 43.2965, lon: 5.3698, vehicles: 2600 },
+    { name: 'Bordeaux', city: 'Bordeaux', lat: 44.8378, lon: -0.5792, vehicles: 2100 },
+    { name: 'Toulouse', city: 'Toulouse', lat: 43.6047, lon: 1.4442, vehicles: 1900 },
+    { name: 'Lille', city: 'Lille', lat: 50.6292, lon: 3.0573, vehicles: 1700 },
+    { name: 'Nantes', city: 'Nantes', lat: 47.2184, lon: -1.5536, vehicles: 1500 },
+    { name: 'Strasbourg', city: 'Strasbourg', lat: 48.5734, lon: 7.7521, vehicles: 1400 },
+    { name: 'Nice', city: 'Nice', lat: 43.7102, lon: 7.2620, vehicles: 1300 },
+    { name: 'Rennes', city: 'Rennes', lat: 48.1173, lon: -1.6778, vehicles: 1100 },
+    { name: 'Grenoble', city: 'Grenoble', lat: 45.1885, lon: 5.7245, vehicles: 950 },
+    { name: 'Montpellier', city: 'Montpellier', lat: 43.6108, lon: 3.8767, vehicles: 1200 },
+    { name: 'Évry', city: 'Évry', lat: 48.6309, lon: 2.4408, vehicles: 490 },
+    { name: 'Tours', city: 'Tours', lat: 47.3941, lon: 0.6848, vehicles: 620 },
+    { name: 'Angers', city: 'Angers', lat: 47.4784, lon: -0.5632, vehicles: 540 },
+  ];
+
+  periodLabels = { yesterday: 'Hier', month: '30 derniers jours', year: 'Cette année', lastyear: "L'an dernier" };
+  months = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+
+  componentDidMount() {
+    const p = this.props.defaultPeriod;
+    if (p && this.periodLabels[p]) this.state.period = p;
+    this.loadData();
+    this.initMap();
+  }
+
+  async loadData() {
+    const url = this.props.statsUrl;
+    if (url) {
+      try { const j = await this.fetchJSON(url, 10000); this.applyStats(j); return; }
+      catch (e) { /* fallback below */ }
+    }
+    // Fallback : agrégation live (véhicules) + placeholders (usage)
+    this.tweenAll(this.state.period);
+    this.fetchLive();
+  }
+
+  applyStats(j) {
+    if (j.rides) this.data.rides = j.rides;
+    if (j.km) this.data.km = j.km;
+    if (j.minutes) this.data.minutes = j.minutes;
+    if (Array.isArray(j.available_monthly) && j.available_monthly.length) {
+      this._avail = j.available_monthly.map((d, i) => {
+        const m = i % 12, year = +(d.month || '').slice(0, 4) || 2024;
+        return { v: d.avg_available, base: d.avg_available, m, year };
+      });
+    }
+    if (Array.isArray(j.networks)) { this.setState({ netList: j.networks }); this.refreshMarkers(); }
+    this.setState({ networks: j.networks_count || (j.networks ? j.networks.length : 0), updatedAt: j.updated_at, liveLoading: false });
+    this.tween('vehicles', 0, j.vehicles_available || 0);
+    this.tweenAll(this.state.period);
+  }
+
+  tweenAll(p) {
+    this.tween('rides', this.state.display.rides, this.data.rides[p]);
+    this.tween('km', this.state.display.km, this.data.km[p]);
+    this.tween('minutes', this.state.display.minutes, this.data.minutes[p]);
+  }
+
+  async fetchJSON(url, ms) {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), ms || 6000);
+    try { const r = await fetch(url, { signal: ctrl.signal }); return await r.json(); }
+    finally { clearTimeout(t); }
+  }
+
+  pickFeed(gj, names) {
+    let feeds = gj && gj.data && gj.data.feeds;
+    if (!feeds && gj && gj.data) { const k = Object.keys(gj.data)[0]; feeds = gj.data[k] && gj.data[k].feeds; }
+    if (!Array.isArray(feeds)) return null;
+    const f = feeds.find(x => names.includes(x.name));
+    return f ? f.url : null;
+  }
+
+  async countNetwork(gbfsUrl) {
+    const gj = await this.fetchJSON(gbfsUrl);
+    const url = this.pickFeed(gj, ['vehicle_status', 'free_bike_status']);
+    if (!url) return null;
+    const vj = await this.fetchJSON(url);
+    const list = (vj.data && (vj.data.vehicles || vj.data.bikes)) || [];
+    return list.filter(v => !v.is_reserved && !v.is_disabled).length;
+  }
+
+  async fetchLive() {
+    try {
+      const ds = await this.fetchJSON('https://transport.data.gouv.fr/api/datasets', 12000);
+      const urls = [];
+      for (const d of (ds || [])) for (const r of (d.resources || [])) {
+        if ((r.format || '').toLowerCase() === 'gbfs' && r.url && /gbfs\.json/i.test(r.url)) urls.push(r.url);
+      }
+      const uniq = [...new Set(urls)];
+      let vehicles = 0, networks = 0;
+      const results = await Promise.allSettled(uniq.map(u => this.countNetwork(u)));
+      for (const res of results) if (res.status === 'fulfilled' && typeof res.value === 'number') { vehicles += res.value; networks++; }
+      if (vehicles > 0) {
+        this.setState({ live: vehicles, networks, liveLoading: false, updatedAt: new Date().toISOString() });
+        this.tween('vehicles', 0, vehicles);
+      } else { throw new Error('no reachable feeds'); }
+    } catch (e) {
+      this.setState({ live: this.data.vehiclesFallback, networks: this.data.networksFallback, liveLoading: false, updatedAt: new Date().toISOString() });
+      this.tween('vehicles', 0, this.data.vehiclesFallback);
+    }
+  }
+
+  tween(key, from, to) {
+    if (this.props.animateCounters === false) { this.setState(s => ({ display: { ...s.display, [key]: to } })); return; }
+    const dur = 1100, start = performance.now(), ease = t => 1 - Math.pow(1 - t, 3);
+    const step = now => {
+      const t = Math.min(1, (now - start) / dur);
+      const val = Math.round(from + (to - from) * ease(t));
+      this.setState(s => ({ display: { ...s.display, [key]: val } }));
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  setPeriod(p) {
+    if (p === this.state.period) return;
+    this.setState({ period: p });
+    this.tweenAll(p);
+  }
+
+  fmt(n) { return (n || 0).toLocaleString('fr-FR'); }
+
+  availSeries() {
+    if (this._avail) return this._avail;
+    const seas = [-.16, -.20, -.04, .10, .22, .27, .24, .19, .08, -.02, -.12, -.18];
+    const arr = []; let base = 210;
+    for (let i = 0; i < 30; i++) { const m = i % 12, year = 2024 + Math.floor(i / 12); base += 5.6; arr.push({ v: Math.round(base * (1 + seas[m])), base: Math.round(base), m, year }); }
+    this._avail = arr; return arr;
+  }
+
+  availGrowth() { const a = this.availSeries(); return Math.round((a[a.length - 1].base / a[0].base - 1) * 100); }
+
+  // ---------- Carte MapLibre ----------
+  networksForMap() {
+    if (this.state.netList && this.state.netList.length) {
+      return this.state.netList.filter(n => typeof n.lat === 'number' && typeof n.lon === 'number')
+        .map(n => ({ name: n.name || n.city || 'Réseau', lat: n.lat, lon: n.lon, vehicles: n.vehicles_available || 0 }));
+    }
+    return this.cities;
+  }
+
+  initMap() {
+    if (this._mapInit) return;
+    if (!window.maplibregl) { this._t = setTimeout(() => this.initMap(), 200); return; }
+    const el = document.getElementById('mlmap');
+    if (!el) { this._t = setTimeout(() => this.initMap(), 200); return; }
+    this._mapInit = true;
+    const map = new maplibregl.Map({
+      container: el,
+      style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+      center: [2.6, 46.4], zoom: 4.7, attributionControl: true, cooperativeGestures: false,
+    });
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    map.on('load', () => { this._map = map; this.recolorMap(map); this.refreshMarkers(); });
+  }
+
+  recolorMap(map) {
+    const layers = (map.getStyle() && map.getStyle().layers) || [];
+    layers.forEach(l => {
+      const id = l.id, type = l.type;
+      try {
+        if (type === 'background') map.setPaintProperty(id, 'background-color', '#223c47');
+        else if (type === 'fill' && /water|ocean|sea|lake|river/i.test(id)) map.setPaintProperty(id, 'fill-color', '#1a2f39');
+        else if (type === 'fill') map.setPaintProperty(id, 'fill-color', '#2c4d5c');
+        else if (type === 'fill-extrusion') map.setPaintProperty(id, 'fill-extrusion-color', '#33586a');
+        else if (type === 'line' && /water|river|waterway/i.test(id)) map.setPaintProperty(id, 'line-color', '#1a2f39');
+        else if (type === 'line') map.setPaintProperty(id, 'line-color', 'rgba(246,249,237,0.10)');
+        else if (type === 'symbol') {
+          map.setPaintProperty(id, 'text-color', 'rgba(246,249,237,0.5)');
+          map.setPaintProperty(id, 'text-halo-color', 'rgba(34,60,71,0.85)');
+          map.setPaintProperty(id, 'text-halo-width', 1.2);
+        }
+      } catch (e) {}
+    });
+  }
+
+  refreshMarkers() {
+    const map = this._map;
+    if (!map || !window.maplibregl) return;
+    (this._markers || []).forEach(m => m.remove());
+    this._markers = [];
+    const accent = this.props.accent || '#5fcf95';
+    const nets = this.networksForMap();
+    const size = 13;
+    nets.forEach(n => {
+      const d = document.createElement('div');
+      d.style.cssText = `width:${size}px;height:${size}px;border-radius:50%;background:${accent};border:2px solid #F6F9ED;box-shadow:0 0 0 4px ${accent}26, 0 1px 4px rgba(0,0,0,.35);cursor:pointer`;
+      const pop = new maplibregl.Popup({ offset: size / 2 + 3, closeButton: false }).setHTML(
+        `<div style="font:600 12px Poppins,sans-serif;color:#294754">${n.name}</div><div style="font:500 11px Poppins,sans-serif;color:#294754">${n.vehicles.toLocaleString('fr-FR')} véhicules dispo</div>`
+      );
+      const mk = new maplibregl.Marker({ element: d }).setLngLat([n.lon, n.lat]).setPopup(pop).addTo(map);
+      this._markers.push(mk);
+    });
+  }
+
+  renderVals() {
+    const d = this.state.display;
+    const accent = this.props.accent || '#5fcf95';
+
+    const styleP = a => ({
+      padding: '8px 15px', borderRadius: '999px', cursor: 'pointer',
+      border: a ? '1px solid #F6F9ED' : '1px solid rgba(246,249,237,.22)',
+      background: a ? '#F6F9ED' : 'transparent',
+      color: a ? '#294754' : 'rgba(246,249,237,.7)', font: "600 12px 'Poppins'", transition: 'all .15s',
+    });
+    const periods = ['yesterday', 'month', 'year', 'lastyear'].map(k => ({
+      key: k, label: this.periodLabels[k], onClick: () => this.setPeriod(k), style: styleP(this.state.period === k),
+    }));
+
+    const max = Math.max(...this.data.monthly);
+    const barsB = this.data.monthly.map((v, i) => ({
+      label: this.months[i],
+      style: { width: '100%', height: Math.round(10 + (v / max) * 150) + 'px', background: 'rgba(246,249,237,.85)', borderRadius: '4px 4px 0 0' },
+    }));
+
+    const a = this.availSeries(), amax = Math.max(...a.map(x => x.v));
+    const availBars = a.map(x => ({
+      style: { width: '100%', height: Math.round(8 + (x.v / amax) * 132) + 'px', background: x.year === 2026 ? accent : 'rgba(246,249,237,.42)', borderRadius: '2px 2px 0 0' },
+    }));
+
+    let updatedFmt = '—';
+    if (this.state.updatedAt) {
+      try { updatedFmt = new Date(this.state.updatedAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }); } catch (e) {}
+    }
+
+    return {
+      vehiclesFmt: this.fmt(d.vehicles),
+      ridesFmt: this.fmt(d.rides),
+      kmFmt: this.fmt(d.km),
+      minutesFmt: this.fmt(d.minutes),
+      networksFmt: this.fmt(this.state.networks),
+      periodLabel: this.periodLabels[this.state.period],
+      periods, barsB, availBars,
+      availGrowthPct: this.availGrowth(),
+      updatedFmt, accent,
+      liveBadgeBg: this.hexA(accent, .15),
+      liveBadgeBorder: this.hexA(accent, .4),
+    };
+  }
+
+  hexA(hex, a) {
+    const h = (hex || '#5fcf95').replace('#', '');
+    const r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+}
+</script>
+</body>
+</html>
