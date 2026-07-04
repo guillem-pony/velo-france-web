@@ -3,19 +3,96 @@ import type { DailyPoint } from '../types';
 
 const MONTHS_FR = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
 const SEASONAL  = [-.16, -.20, -.04, .10, .22, .27, .24, .19, .08, -.02, -.12, -.18];
+const CHART_H   = 160; // hauteur zone barres en px
 
-function buildFallback(): DailyPoint[] {
-  const today = new Date();
-  return Array.from({ length: 90 }, (_, i) => {
-    const d = new Date(today);
-    d.setDate(d.getDate() - (89 - i));
-    const m = d.getMonth();
-    return {
-      day: d.toISOString().slice(0, 10),
-      vehicles: Math.round(85_000 * (1 + SEASONAL[m] + Math.sin(i * 2.3) * 0.015)),
-    };
-  });
+// ── Série mixte : une barre par mois passé, une par jour du mois courant ────
+
+interface BarPoint {
+  key: string;
+  label: string;
+  vehicles: number;
+  isCurrentMonth: boolean;
+  tooltip: string;
 }
+
+function buildMixed(points: DailyPoint[]): BarPoint[] {
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const byMonth = new Map<string, number[]>();
+  const currentDays: DailyPoint[] = [];
+
+  for (const p of points) {
+    if (p.day.slice(0, 7) === currentMonth) {
+      currentDays.push(p);
+    } else {
+      const arr = byMonth.get(p.day.slice(0, 7)) ?? [];
+      arr.push(p.vehicles);
+      byMonth.set(p.day.slice(0, 7), arr);
+    }
+  }
+
+  const result: BarPoint[] = [];
+
+  // Mois passés → moyenne
+  for (const [month, values] of Array.from(byMonth.entries()).sort()) {
+    const avg = Math.round(values.reduce((a, b) => a + b, 0) / values.length);
+    const m   = parseInt(month.slice(5, 7), 10) - 1;
+    result.push({
+      key: month,
+      label: MONTHS_FR[m],
+      vehicles: avg,
+      isCurrentMonth: false,
+      tooltip: `${MONTHS_FR[m]} · moy. ${avg.toLocaleString('fr-FR')} véhicules`,
+    });
+  }
+
+  // Mois courant → un jour par barre
+  for (const p of currentDays) {
+    const m = parseInt(p.day.slice(5, 7), 10) - 1;
+    const d = parseInt(p.day.slice(8, 10), 10);
+    result.push({
+      key: p.day,
+      label: String(d),
+      vehicles: p.vehicles,
+      isCurrentMonth: true,
+      tooltip: `${d} ${MONTHS_FR[m]} · ${p.vehicles.toLocaleString('fr-FR')} véhicules`,
+    });
+  }
+
+  return result;
+}
+
+function buildFallback(): BarPoint[] {
+  const today        = new Date();
+  const currentMonth = today.toISOString().slice(0, 7);
+  const result: BarPoint[] = [];
+
+  for (let i = 5; i >= 1; i--) {
+    const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+    const m = d.getMonth();
+    result.push({
+      key:            `${d.getFullYear()}-${String(m + 1).padStart(2, '0')}`,
+      label:          MONTHS_FR[m],
+      vehicles:       Math.round(85_000 * (1 + SEASONAL[m])),
+      isCurrentMonth: false,
+      tooltip:        `${MONTHS_FR[m]} · données simulées`,
+    });
+  }
+
+  const cm = today.getMonth();
+  for (let d = 1; d <= today.getDate(); d++) {
+    result.push({
+      key:            `${currentMonth}-${String(d).padStart(2, '0')}`,
+      label:          String(d),
+      vehicles:       Math.round(85_000 * (1 + SEASONAL[cm] + Math.sin(d * 1.3) * 0.015)),
+      isCurrentMonth: true,
+      tooltip:        `${d} ${MONTHS_FR[cm]} · données simulées`,
+    });
+  }
+
+  return result;
+}
+
+// ── Composant ────────────────────────────────────────────────────────────────
 
 interface Props {
   historyUrl: string;
@@ -23,7 +100,7 @@ interface Props {
 
 export function GrowthChart({ historyUrl }: Props) {
   const [series, setSeries] = useState<DailyPoint[]>([]);
-  const [fallback] = useState<DailyPoint[]>(buildFallback);
+  const [fallback]          = useState<BarPoint[]>(buildFallback);
 
   useEffect(() => {
     if (!historyUrl) return;
@@ -35,7 +112,7 @@ export function GrowthChart({ historyUrl }: Props) {
       .catch(() => {});
   }, [historyUrl]);
 
-  const display    = series.length > 0 ? series : fallback;
+  const display    = series.length > 0 ? buildMixed(series) : fallback;
   const isFallback = series.length === 0;
   const max        = Math.max(...display.map(d => d.vehicles));
   const first      = display[0];
@@ -43,19 +120,6 @@ export function GrowthChart({ historyUrl }: Props) {
   const growthPct  = first && last && first.vehicles > 0
     ? Math.round((last.vehicles / first.vehicles - 1) * 100)
     : 0;
-
-  const thisMonth = new Date().toISOString().slice(0, 7);
-
-  // Libellés au début de chaque mois
-  const monthLabels: { index: number; label: string }[] = [];
-  let lastMonth = '';
-  display.forEach((d, i) => {
-    const m = d.day.slice(0, 7);
-    if (m !== lastMonth) {
-      monthLabels.push({ index: i, label: MONTHS_FR[parseInt(d.day.slice(5, 7), 10) - 1] });
-      lastMonth = m;
-    }
-  });
 
   return (
     <div style={{
@@ -72,7 +136,7 @@ export function GrowthChart({ historyUrl }: Props) {
           font: "600 11px 'Poppins'", letterSpacing: '.12em',
           color: 'rgba(246,249,237,.5)', textTransform: 'uppercase',
         }}>
-          Véhicules disponibles · par jour
+          Véhicules disponibles · par mois / par jour
           {isFallback && (
             <span style={{ color: 'rgba(246,249,237,.25)', fontWeight: 400, letterSpacing: 0 }}>
               {' '}— données simulées
@@ -92,61 +156,62 @@ export function GrowthChart({ historyUrl }: Props) {
         )}
       </div>
 
-      {/* Barres */}
-      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 150 }}>
-        {display.map((d, i) => {
-          const isCurrent = d.day.slice(0, 7) === thisMonth;
-          const h = Math.round(8 + (d.vehicles / max) * 132);
-          const [, mm, dd] = d.day.split('-');
-          const tooltip = `${parseInt(dd)} ${MONTHS_FR[parseInt(mm, 10) - 1]} · ${d.vehicles.toLocaleString('fr-FR')} véhicules`;
+      {/* Zone barres — hauteur fixe, rien ne déborde */}
+      <div style={{
+        display: 'flex', alignItems: 'flex-end', gap: 4,
+        height: CHART_H, overflow: 'hidden',
+      }}>
+        {display.map(({ key, vehicles, isCurrentMonth, tooltip }) => {
+          const h       = Math.max(18, Math.round(6 + (vehicles / max) * (CHART_H - 10)));
+          const bgCol   = isCurrentMonth ? 'var(--accent)' : 'rgba(246,249,237,.42)';
+          const txtCol  = isCurrentMonth ? '#294754' : 'rgba(41,71,84,.85)';
+          const showTxt = h >= 50;
           return (
             <div
-              key={i}
+              key={key}
               title={tooltip}
               style={{
-                flex: 1, display: 'flex', flexDirection: 'column',
-                justifyContent: 'flex-end', height: '100%', cursor: 'default',
-              }}
-            >
-              <div style={{
-                width: '100%', height: Math.max(20, h),
-                background: isCurrent ? 'var(--accent)' : 'rgba(246,249,237,.42)',
+                flex: 1, height: h,
+                background: bgCol,
                 borderRadius: '2px 2px 0 0',
                 overflow: 'hidden',
                 display: 'flex', alignItems: 'flex-start',
-              }}>
+                cursor: 'default', flexShrink: 0,
+              }}
+            >
+              {showTxt && (
                 <span style={{
                   writingMode: 'vertical-rl',
                   transform: 'rotate(180deg)',
                   font: "600 9px 'Poppins'",
                   fontVariantNumeric: 'tabular-nums',
-                  color: isCurrent ? '#294754' : 'rgba(41,71,84,.85)',
+                  color: txtCol,
                   paddingTop: 4,
+                  lineHeight: 1,
                   whiteSpace: 'nowrap',
                 }}>
-                  {d.vehicles.toLocaleString('fr-FR')}
+                  {vehicles.toLocaleString('fr-FR')}
                 </span>
-              </div>
+              )}
             </div>
           );
         })}
       </div>
 
-      {/* Axe X — mois */}
-      <div style={{ position: 'relative', height: 18, marginTop: 8 }}>
-        {monthLabels.map(({ index, label }) => (
-          <span
-            key={index}
-            style={{
-              position: 'absolute',
-              left: `${(index / display.length) * 100}%`,
-              font: "500 10px 'Poppins'",
-              color: 'rgba(246,249,237,.42)',
-              whiteSpace: 'nowrap',
-            }}
-          >
+      {/* Axe X */}
+      <div style={{ display: 'flex', gap: 4, marginTop: 7 }}>
+        {display.map(({ key, label, isCurrentMonth }) => (
+          <div key={key} style={{
+            flex: 1,
+            font: "500 9px 'Poppins'",
+            color: isCurrentMonth ? 'rgba(246,249,237,.7)' : 'rgba(246,249,237,.42)',
+            textAlign: 'center',
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+          }}>
             {label}
-          </span>
+          </div>
         ))}
       </div>
 
