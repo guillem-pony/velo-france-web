@@ -7,7 +7,6 @@ import { Nav }            from './components/Nav';
 import { Hero }           from './components/Hero';
 import { PeriodSelector } from './components/PeriodSelector';
 import { StatsGrid }      from './components/StatsGrid';
-import { MonthlyChart }   from './components/MonthlyChart';
 import { GrowthChart }    from './components/GrowthChart';
 import { TripsChart }     from './components/TripsChart';
 import { NetworkMap }     from './components/NetworkMap';
@@ -52,8 +51,6 @@ export default function App() {
           minutes={data.minutes}
           animate
         />
-
-        <MonthlyChart />
 
         <GrowthChart historyUrl={HISTORY_URL} />
 
