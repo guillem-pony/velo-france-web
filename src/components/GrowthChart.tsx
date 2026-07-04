@@ -109,10 +109,24 @@ export function GrowthChart({ historyUrl }: Props) {
               }}
             >
               <div style={{
-                width: '100%', height: h,
+                width: '100%', height: Math.max(20, h),
                 background: isCurrent ? 'var(--accent)' : 'rgba(246,249,237,.42)',
                 borderRadius: '2px 2px 0 0',
-              }} />
+                overflow: 'hidden',
+                display: 'flex', alignItems: 'flex-start',
+              }}>
+                <span style={{
+                  writingMode: 'vertical-rl',
+                  transform: 'rotate(180deg)',
+                  font: "600 9px 'Poppins'",
+                  fontVariantNumeric: 'tabular-nums',
+                  color: isCurrent ? '#294754' : 'rgba(41,71,84,.85)',
+                  paddingTop: 4,
+                  whiteSpace: 'nowrap',
+                }}>
+                  {d.vehicles.toLocaleString('fr-FR')}
+                </span>
+              </div>
             </div>
           );
         })}
