@@ -105,7 +105,7 @@ export function TripsChart({ tripsUrl }: Props) {
 
   useEffect(() => {
     if (!tripsUrl) return;
-    fetch(tripsUrl)
+    fetch(tripsUrl, { cache: 'no-store' })
       .then(r => r.json())
       .then((data: { points?: TripHistoryPoint[] }) => {
         if (data.points && data.points.length > 0) setSeries(data.points);
