@@ -15,8 +15,7 @@ import { Footer }         from './components/Footer';
 // Couleur d'accent configurable (spec section 2) — palette : #5fcf95 | #6aa9d6 | #e0a04d | #d98b5f
 const ACCENT = '#5fcf95';
 
-// URL de l'API — remplacer par VITE_STATS_URL en production
-const STATS_URL = import.meta.env.VITE_STATS_URL ?? 'http://localhost:3000/api/stats';
+const STATS_URL: string = import.meta.env.VITE_STATS_URL ?? (import.meta.env.DEV ? 'http://localhost:3000/api/stats' : '');
 
 export default function App() {
   const [period, setPeriod] = useState<Period>('year');
