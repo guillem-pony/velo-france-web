@@ -11,6 +11,7 @@ interface Props {
 
 const OPERATOR_PALETTE: Record<string, { label: string; color: string }> = {
   fifteen: { label: 'Fifteen', color: '#ea3365' },
+  ecovelo: { label: 'Ecovélo', color: '#293ad5' },
   pony:    { label: 'Pony',    color: '#00FFFF' },
   voi:     { label: 'Voi',     color: '#e27267' },
   lime:    { label: 'Lime',    color: '#32CD32' },
