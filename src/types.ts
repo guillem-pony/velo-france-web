@@ -40,7 +40,7 @@ export type Period = 'yesterday' | 'month' | 'year' | 'lastyear';
 
 export const PERIOD_LABELS: Record<Period, string> = {
   yesterday: 'Hier',
-  month: '30 derniers jours',
+  month: 'Le mois dernier',
   year: 'Cette année',
   lastyear: "L'an dernier",
 };
