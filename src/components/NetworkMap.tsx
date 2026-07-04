@@ -10,13 +10,10 @@ interface Props {
 // ── Couleurs par opérateur ───────────────────────────────────────────────────
 
 const OPERATOR_PALETTE: Array<{ pattern: RegExp; label: string; color: string }> = [
-  { pattern: /\bpony\b/i,                label: 'Pony',   color: '#22c4d6' },
-  { pattern: /\bvoi\b/i,                 label: 'Voi',    color: '#ff6f61' },
-  { pattern: /\blime\b/i,                label: 'Lime',   color: '#3fae4a' },
-  { pattern: /\bdott\b/i,                label: 'Dott',   color: '#2f6bff' },
-  { pattern: /\bv[eé]lib['’]?\b/i,  label: "Vélib'", color: '#e2001a' },
-  { pattern: /\bbird\b/i,                label: 'Bird',   color: '#12d1c4' },
-  { pattern: /\bbolt\b/i,                label: 'Bolt',   color: '#34d186' },
+  { pattern: /\bpony\b/i,           label: ‘Pony’, color: ‘#00FFFF’ },
+  { pattern: /\bvoi\b/i,            label: ‘Voi’,  color: ‘#e27267’ },
+  { pattern: /\blime\b/i,           label: ‘Lime’, color: ‘#32CD32’ },
+  { pattern: /\bdott\b/i,           label: ‘Dott’, color: ‘#009DDB’ },
 ];
 const FALLBACK_COLOR = '#9aa7ad';
 const MIN_SYSTEMS    = 2;
