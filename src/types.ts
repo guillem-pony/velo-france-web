@@ -48,6 +48,7 @@ export interface StatsPayload {
   km: PeriodMetric;
   minutes: PeriodMetric;
   available_monthly: MonthlyPoint[];
+  rides_monthly?: Array<{ month: string; rides: number }>;
   daily?: DailyStats;
   stale: boolean;
 }
@@ -59,10 +60,24 @@ export interface TripHistoryPoint {
   duration_min: number;
 }
 
+// ── Périodes ─────────────────────────────────────────────────────────────────
+
+// Period : clés des buckets backend (rides/km/minutes) — utilisé par StatsGrid
 export type Period = 'yesterday' | 'month' | 'year' | 'lastyear';
 
 export const PERIOD_LABELS: Record<Period, string> = {
   yesterday: 'Hier',
+  month: 'Le mois dernier',
+  year: 'Cette année',
+  lastyear: "L'an dernier",
+};
+
+// ChartPeriod : 5 périodes exposées par le sélecteur (+ utilisées par les graphiques)
+export type ChartPeriod = 'yesterday' | 'thismonth' | 'month' | 'year' | 'lastyear';
+
+export const CHART_PERIOD_LABELS: Record<ChartPeriod, string> = {
+  yesterday: 'Hier',
+  thismonth: 'Ce mois-ci',
   month: 'Le mois dernier',
   year: 'Cette année',
   lastyear: "L'an dernier",

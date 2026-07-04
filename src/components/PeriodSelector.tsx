@@ -1,11 +1,11 @@
-import type { Period } from '../types';
-import { PERIOD_LABELS } from '../types';
+import type { ChartPeriod } from '../types';
+import { CHART_PERIOD_LABELS } from '../types';
 
-const PERIODS: Period[] = ['yesterday', 'month', 'year', 'lastyear'];
+const PERIODS: ChartPeriod[] = ['yesterday', 'thismonth', 'month', 'year', 'lastyear'];
 
 interface Props {
-  period: Period;
-  onChange: (p: Period) => void;
+  period: ChartPeriod;
+  onChange: (p: ChartPeriod) => void;
 }
 
 export function PeriodSelector({ period, onChange }: Props) {
@@ -30,7 +30,7 @@ export function PeriodSelector({ period, onChange }: Props) {
                 font: "600 12px 'Poppins'", transition: 'all .15s',
               }}
             >
-              {PERIOD_LABELS[p]}
+              {CHART_PERIOD_LABELS[p]}
             </button>
           );
         })}

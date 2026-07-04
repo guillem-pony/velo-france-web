@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useStats } from './hooks/useStats';
 import { hexA } from './utils';
-import type { Period } from './types';
+import type { ChartPeriod, Period } from './types';
 
 import { Nav }            from './components/Nav';
 import { Hero }           from './components/Hero';
@@ -15,15 +15,16 @@ import { Footer }         from './components/Footer';
 // Couleur d'accent configurable (spec section 2) — palette : #5fcf95 | #6aa9d6 | #e0a04d | #d98b5f
 const ACCENT = '#5fcf95';
 
-const STATS_URL: string   = import.meta.env.VITE_STATS_URL ?? (import.meta.env.DEV ? 'http://localhost:3000/api/stats' : '');
-const HISTORY_URL: string = STATS_URL ? STATS_URL.replace('/api/stats', '/api/history') : '';
-const TRIPS_URL: string   = STATS_URL ? STATS_URL.replace('/api/stats', '/api/trips/history') : '';
+const STATS_URL: string = import.meta.env.VITE_STATS_URL ?? (import.meta.env.DEV ? 'http://localhost:3000/api/stats' : '');
 
 export default function App() {
-  const [period, setPeriod] = useState<Period>('year');
+  const [period, setPeriod] = useState<ChartPeriod>('year');
   const { data } = useStats(STATS_URL);
 
-  // CSS variables propagées à tous les enfants via style inline
+  // ChartPeriod → Period pour StatsGrid (qui utilise les buckets backend rides/km/minutes)
+  // 'thismonth' n'a pas de bucket dédié → on utilise 'month' (30 jours glissants) comme approximation
+  const statPeriod: Period = (period === 'thismonth' ? 'month' : period) as Period;
+
   const cssVars = {
     '--accent':        ACCENT,
     '--accent-bg':     hexA(ACCENT, 0.15),
@@ -45,16 +46,16 @@ export default function App() {
         <PeriodSelector period={period} onChange={setPeriod} />
 
         <StatsGrid
-          period={period}
+          period={statPeriod}
           rides={data.rides}
           km={data.km}
           minutes={data.minutes}
           animate
         />
 
-        <GrowthChart historyUrl={HISTORY_URL} />
+        <GrowthChart period={period} data={data} />
 
-        <TripsChart tripsUrl={TRIPS_URL} />
+        <TripsChart period={period} data={data} />
 
         <NetworkMap networks={data.networks} accent={ACCENT} />
 
