@@ -9,6 +9,7 @@ import { PeriodSelector } from './components/PeriodSelector';
 import { StatsGrid }      from './components/StatsGrid';
 import { MonthlyChart }   from './components/MonthlyChart';
 import { GrowthChart }    from './components/GrowthChart';
+import { TripsChart }     from './components/TripsChart';
 import { NetworkMap }     from './components/NetworkMap';
 import { Footer }         from './components/Footer';
 
@@ -17,6 +18,7 @@ const ACCENT = '#5fcf95';
 
 const STATS_URL: string   = import.meta.env.VITE_STATS_URL ?? (import.meta.env.DEV ? 'http://localhost:3000/api/stats' : '');
 const HISTORY_URL: string = STATS_URL ? STATS_URL.replace('/api/stats', '/api/history') : '';
+const TRIPS_URL: string   = STATS_URL ? STATS_URL.replace('/api/stats', '/api/trips/history') : '';
 
 export default function App() {
   const [period, setPeriod] = useState<Period>('year');
@@ -54,6 +56,8 @@ export default function App() {
         <MonthlyChart />
 
         <GrowthChart historyUrl={HISTORY_URL} />
+
+        <TripsChart tripsUrl={TRIPS_URL} />
 
         <NetworkMap networks={data.networks} accent={ACCENT} />
 

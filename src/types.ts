@@ -36,6 +36,13 @@ export interface StatsPayload {
   stale: boolean;
 }
 
+export interface TripHistoryPoint {
+  day: string;          // YYYY-MM-DD
+  trips: number;
+  distance_km: number;
+  duration_min: number;
+}
+
 export type Period = 'yesterday' | 'month' | 'year' | 'lastyear';
 
 export const PERIOD_LABELS: Record<Period, string> = {
