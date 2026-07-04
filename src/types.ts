@@ -22,6 +22,7 @@ export interface Network {
   lat: number | null;
   lon: number | null;
   vehicles_available: number;
+  operator?: string;
 }
 
 export interface StatsPayload {

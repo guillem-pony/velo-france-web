@@ -9,18 +9,28 @@ interface Props {
 
 // ── Couleurs par opérateur ───────────────────────────────────────────────────
 
-const OPERATOR_PALETTE: Array<{ pattern: RegExp; label: string; color: string }> = [
-  { pattern: /\bpony\b/i,           label: 'Pony', color: '#00FFFF' },
-  { pattern: /\bvoi\b/i,            label: 'Voi',  color: '#e27267' },
-  { pattern: /\blime\b/i,           label: 'Lime', color: '#32CD32' },
-  { pattern: /\bdott\b/i,           label: 'Dott', color: '#009DDB' },
+const OPERATOR_PALETTE: Record<string, { label: string; color: string }> = {
+  fifteen: { label: 'Fifteen', color: '#ea3365' },
+  pony:    { label: 'Pony',    color: '#00FFFF' },
+  voi:     { label: 'Voi',     color: '#e27267' },
+  lime:    { label: 'Lime',    color: '#32CD32' },
+  dott:    { label: 'Dott',    color: '#009DDB' },
+};
+
+const NAME_PATTERNS: Array<{ pattern: RegExp; key: string }> = [
+  { pattern: /\bpony\b/i, key: 'pony' },
+  { pattern: /\bvoi\b/i,  key: 'voi'  },
+  { pattern: /\blime\b/i, key: 'lime' },
+  { pattern: /\bdott\b/i, key: 'dott' },
 ];
+
 const FALLBACK_COLOR = '#9aa7ad';
 const MIN_SYSTEMS    = 2;
 
-function detectOperator(name: string): { label: string; color: string } {
-  for (const op of OPERATOR_PALETTE) {
-    if (op.pattern.test(name)) return { label: op.label, color: op.color };
+function detectOperator(name: string, operator?: string): { label: string; color: string } {
+  if (operator && OPERATOR_PALETTE[operator]) return OPERATOR_PALETTE[operator];
+  for (const { pattern, key } of NAME_PATTERNS) {
+    if (pattern.test(name)) return OPERATOR_PALETTE[key];
   }
   return { label: 'Autre', color: FALLBACK_COLOR };
 }
@@ -66,7 +76,7 @@ function placeMarkers(
   return networks
     .filter(n => typeof n.lat === 'number' && typeof n.lon === 'number')
     .map(n => {
-      const op    = detectOperator(n.name);
+      const op    = detectOperator(n.name, n.operator);
       const count = operatorCounts.get(op.label)?.count ?? 0;
       const color = count >= MIN_SYSTEMS ? op.color : FALLBACK_COLOR;
 
@@ -115,7 +125,7 @@ export function NetworkMap({ networks, accent }: Props) {
   const operatorCounts = useMemo(() => {
     const counts = new Map<string, { color: string; count: number }>();
     for (const n of networks) {
-      const op = detectOperator(n.name);
+      const op = detectOperator(n.name, n.operator);
       const e  = counts.get(op.label) ?? { color: op.color, count: 0 };
       e.count++;
       counts.set(op.label, e);
