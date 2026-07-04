@@ -1,39 +1,61 @@
-// Graphe "Véhicules disponibles par mois"
-// Données réelles : available_monthly[] de /api/stats  →  fallback série saisonnière.
+import { useEffect, useState } from 'react';
+import type { DailyPoint } from '../types';
 
-import type { MonthlyPoint } from '../types';
+const MONTHS_FR = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+const SEASONAL  = [-.16, -.20, -.04, .10, .22, .27, .24, .19, .08, -.02, -.12, -.18];
 
-const SEASONAL = [-.16, -.20, -.04, .10, .22, .27, .24, .19, .08, -.02, -.12, -.18];
-
-function buildFallback(): MonthlyPoint[] {
-  let base = 210;
-  return Array.from({ length: 30 }, (_, i) => {
-    const year  = 2024 + Math.floor(i / 12);
-    const month = i % 12;
-    base += 5.6;
+function buildFallback(): DailyPoint[] {
+  const today = new Date();
+  return Array.from({ length: 90 }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(d.getDate() - (89 - i));
+    const m = d.getMonth();
     return {
-      month: `${year}-${String(month + 1).padStart(2, '0')}`,
-      avg_available: Math.round(base * (1 + SEASONAL[month])),
+      day: d.toISOString().slice(0, 10),
+      vehicles: Math.round(85_000 * (1 + SEASONAL[m] + Math.sin(i * 2.3) * 0.015)),
     };
   });
 }
 
 interface Props {
-  data: MonthlyPoint[];
+  historyUrl: string;
 }
 
-export function GrowthChart({ data }: Props) {
-  const series    = data.length > 0 ? data : buildFallback();
-  const currentYear = new Date().getFullYear();
-  const max = Math.max(...series.map(d => d.avg_available));
+export function GrowthChart({ historyUrl }: Props) {
+  const [series, setSeries] = useState<DailyPoint[]>([]);
+  const [fallback] = useState<DailyPoint[]>(buildFallback);
 
-  const first2024 = series.find(d => d.month.startsWith('2024'));
-  const last       = series[series.length - 1];
-  const growthPct  = first2024 && last && first2024.avg_available > 0
-    ? Math.round((last.avg_available / first2024.avg_available - 1) * 100)
+  useEffect(() => {
+    if (!historyUrl) return;
+    fetch(historyUrl)
+      .then(r => r.json())
+      .then((data: { points?: DailyPoint[] }) => {
+        if (data.points && data.points.length > 0) setSeries(data.points);
+      })
+      .catch(() => {});
+  }, [historyUrl]);
+
+  const display    = series.length > 0 ? series : fallback;
+  const isFallback = series.length === 0;
+  const max        = Math.max(...display.map(d => d.vehicles));
+  const first      = display[0];
+  const last       = display[display.length - 1];
+  const growthPct  = first && last && first.vehicles > 0
+    ? Math.round((last.vehicles / first.vehicles - 1) * 100)
     : 0;
 
-  const years = [...new Set(series.map(d => d.month.slice(0, 4)))].sort();
+  const thisMonth = new Date().toISOString().slice(0, 7);
+
+  // Libellés au début de chaque mois
+  const monthLabels: { index: number; label: string }[] = [];
+  let lastMonth = '';
+  display.forEach((d, i) => {
+    const m = d.day.slice(0, 7);
+    if (m !== lastMonth) {
+      monthLabels.push({ index: i, label: MONTHS_FR[parseInt(d.day.slice(5, 7), 10) - 1] });
+      lastMonth = m;
+    }
+  });
 
   return (
     <div style={{
@@ -50,30 +72,42 @@ export function GrowthChart({ data }: Props) {
           font: "600 11px 'Poppins'", letterSpacing: '.12em',
           color: 'rgba(246,249,237,.5)', textTransform: 'uppercase',
         }}>
-          Véhicules disponibles par mois — La flotte grandit
+          Véhicules disponibles · par jour
+          {isFallback && (
+            <span style={{ color: 'rgba(246,249,237,.25)', fontWeight: 400, letterSpacing: 0 }}>
+              {' '}— données simulées
+            </span>
+          )}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{
-            width: 10, height: 10, borderRadius: 3,
-            background: 'var(--accent)', display: 'inline-block',
-          }} />
-          <span style={{ font: "600 12px 'Poppins'", color: 'var(--accent)' }}>
-            +{growthPct}&nbsp;% depuis 2024
-          </span>
-        </div>
+        {!isFallback && growthPct !== 0 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{
+              width: 10, height: 10, borderRadius: 3,
+              background: 'var(--accent)', display: 'inline-block',
+            }} />
+            <span style={{ font: "600 12px 'Poppins'", color: 'var(--accent)' }}>
+              {growthPct >= 0 ? '+' : ''}{growthPct}&nbsp;% sur la période
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Barres */}
-      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 150 }}>
-        {series.map((d, i) => {
-          const year      = Number(d.month.slice(0, 4));
-          const isCurrent = year === currentYear;
-          const h = Math.round(8 + (d.avg_available / max) * 132);
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 150 }}>
+        {display.map((d, i) => {
+          const isCurrent = d.day.slice(0, 7) === thisMonth;
+          const h = Math.round(8 + (d.vehicles / max) * 132);
+          const [, mm, dd] = d.day.split('-');
+          const tooltip = `${parseInt(dd)} ${MONTHS_FR[parseInt(mm, 10) - 1]} · ${d.vehicles.toLocaleString('fr-FR')} véhicules`;
           return (
-            <div key={i} style={{
-              flex: 1, display: 'flex', flexDirection: 'column',
-              justifyContent: 'flex-end', height: '100%',
-            }}>
+            <div
+              key={i}
+              title={tooltip}
+              style={{
+                flex: 1, display: 'flex', flexDirection: 'column',
+                justifyContent: 'flex-end', height: '100%', cursor: 'default',
+              }}
+            >
               <div style={{
                 width: '100%', height: h,
                 background: isCurrent ? 'var(--accent)' : 'rgba(246,249,237,.42)',
@@ -84,12 +118,22 @@ export function GrowthChart({ data }: Props) {
         })}
       </div>
 
-      {/* Axe années */}
-      <div style={{
-        display: 'flex', justifyContent: 'space-between',
-        font: "500 10px 'Poppins'", color: 'rgba(246,249,237,.42)', marginTop: 10,
-      }}>
-        {years.map(y => <span key={y}>{y}</span>)}
+      {/* Axe X — mois */}
+      <div style={{ position: 'relative', height: 18, marginTop: 8 }}>
+        {monthLabels.map(({ index, label }) => (
+          <span
+            key={index}
+            style={{
+              position: 'absolute',
+              left: `${(index / display.length) * 100}%`,
+              font: "500 10px 'Poppins'",
+              color: 'rgba(246,249,237,.42)',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {label}
+          </span>
+        ))}
       </div>
 
     </div>

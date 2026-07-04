@@ -15,7 +15,8 @@ import { Footer }         from './components/Footer';
 // Couleur d'accent configurable (spec section 2) — palette : #5fcf95 | #6aa9d6 | #e0a04d | #d98b5f
 const ACCENT = '#5fcf95';
 
-const STATS_URL: string = import.meta.env.VITE_STATS_URL ?? (import.meta.env.DEV ? 'http://localhost:3000/api/stats' : '');
+const STATS_URL: string   = import.meta.env.VITE_STATS_URL ?? (import.meta.env.DEV ? 'http://localhost:3000/api/stats' : '');
+const HISTORY_URL: string = STATS_URL ? STATS_URL.replace('/api/stats', '/api/history') : '';
 
 export default function App() {
   const [period, setPeriod] = useState<Period>('year');
@@ -52,7 +53,7 @@ export default function App() {
 
         <MonthlyChart />
 
-        <GrowthChart data={data.available_monthly} />
+        <GrowthChart historyUrl={HISTORY_URL} />
 
         <NetworkMap networks={data.networks} accent={ACCENT} />
 

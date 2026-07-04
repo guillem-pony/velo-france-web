@@ -10,6 +10,11 @@ export interface MonthlyPoint {
   avg_available: number;
 }
 
+export interface DailyPoint {
+  day: string;      // YYYY-MM-DD
+  vehicles: number;
+}
+
 export interface Network {
   id: string;
   name: string;
