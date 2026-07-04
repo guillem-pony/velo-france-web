@@ -90,7 +90,7 @@ export function NetworkMap({ networks, accent }: Props) {
       style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
       center: [2.6, 46.4],
       zoom: 4.7,
-      attributionControl: true,
+      attributionControl: {},
     });
 
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
