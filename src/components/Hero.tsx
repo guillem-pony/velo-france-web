@@ -48,7 +48,7 @@ export function Hero({ vehicles, networksCount, animate }: Props) {
       {/* Colonne droite : intro éditoriale */}
       <div className="hero-intro" style={{ paddingBottom: 10 }}>
         <p style={{ font: "400 15px/1.6 'Poppins'", color: 'rgba(246,249,237,.66)' }}>
-          Chaque jour, des milliers de vélos et trottinettes en libre-service circulent
+          Chaque jour, des milliers de vélos en libre-service circulent
           en France. Cette page agrège en temps réel les données ouvertes{' '}
           <strong style={{ color: '#F6F9ED', fontWeight: 600 }}>GBFS</strong> de tous
           les réseaux, publiées sur transport.data.gouv.fr.
