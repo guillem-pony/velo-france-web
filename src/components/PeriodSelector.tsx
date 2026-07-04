@@ -12,7 +12,7 @@ export function PeriodSelector({ period, onChange }: Props) {
   return (
     <div className="period-row">
       <div style={{ font: "600 13px 'Poppins'", color: 'rgba(246,249,237,.7)' }}>
-        Usage du réseau
+        Vélos et usage
       </div>
       <div className="period-buttons">
         {PERIODS.map((p) => {

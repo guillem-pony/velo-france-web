@@ -61,7 +61,7 @@ export function StatCards({ period, onPeriodChange, rides, km, minutes, animate 
         marginBottom: 22,
       }}>
         <div style={{ font: "600 13px 'Poppins'", color: 'rgba(246,249,237,.7)' }}>
-          Usage du réseau
+          Vélos et usage
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {PERIODS.map((p) => {
