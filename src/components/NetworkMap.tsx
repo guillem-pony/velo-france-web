@@ -64,54 +64,68 @@ function recolorMap(map: maplibregl.Map) {
   }
 }
 
-// ── Utilitaires clustering / spiderfy ────────────────────────────────────────
+// ── Écartement anti-chevauchement ────────────────────────────────────────────
 
-type MMap   = Map<string, maplibregl.Marker>;
-type Spider = Map<string, [number, number]>;
+type MMap = Map<string, maplibregl.Marker>;
 
 function nKey(n: Network): string {
   return `${n.lat},${n.lon}`;
 }
 
-function buildGeoJSON(networks: Network[]) {
-  return {
-    type: 'FeatureCollection' as const,
-    features: networks
-      .filter(n => typeof n.lat === 'number' && typeof n.lon === 'number')
-      .map(n => ({
-        type: 'Feature' as const,
-        geometry: { type: 'Point' as const, coordinates: [n.lon as number, n.lat as number] },
-        properties: { key: nKey(n) },
-      })),
-  };
-}
-
-// Union-find grouping of screen-space nearby items
-function spiderGroups(items: { key: string; x: number; y: number }[], d: number): string[][] {
+// Union-find : regroupe les points dont la distance écran < threshold
+function overlapGroups(items: { key: string; x: number; y: number }[], threshold: number): string[][] {
   const p = items.map((_, i) => i);
   const find = (i: number): number => p[i] === i ? i : (p[i] = find(p[i]));
   for (let i = 0; i < items.length; i++)
     for (let j = i + 1; j < items.length; j++) {
       const dx = items[i].x - items[j].x, dy = items[i].y - items[j].y;
-      if (dx * dx + dy * dy < d * d) p[find(i)] = find(j);
+      if (dx * dx + dy * dy < threshold * threshold) p[find(i)] = find(j);
     }
   const g = new Map<number, string[]>();
   items.forEach((v, i) => { const r = find(i); g.set(r, [...(g.get(r) ?? []), v.key]); });
   return [...g.values()].filter(arr => arr.length >= 2);
 }
 
-function setSpiderLines(map: maplibregl.Map, lines: [number, number][][]): void {
-  (map.getSource('spider-lines') as maplibregl.GeoJSONSource | undefined)?.setData({
-    type: 'FeatureCollection',
-    features: lines.map(c => ({
-      type: 'Feature' as const,
-      geometry: { type: 'LineString' as const, coordinates: c },
-      properties: {},
-    })),
-  } as any);
+// Recalcule l'écartement après chaque fin de déplacement/zoom
+function spreadMarkers(map: maplibregl.Map, mmap: MMap): void {
+  // Remettre tous les marqueurs à leur position géographique réelle
+  for (const m of mmap.values()) {
+    const orig = (m as any)._orig as [number, number] | undefined;
+    if (orig) m.setLngLat(orig);
+  }
+
+  // Projeter toutes les positions vraies en coordonnées écran
+  const items = [...mmap.entries()].map(([key, m]) => {
+    const orig = (m as any)._orig as [number, number] | undefined;
+    const p = map.project(orig ?? m.getLngLat());
+    return { key, m, x: p.x, y: p.y };
+  });
+
+  const byKey = new Map(items.map(v => [v.key, v]));
+
+  for (const keys of overlapGroups(items, 16)) {
+    const its = keys.map(k => byKey.get(k)!).filter(Boolean);
+    const n  = its.length;
+    const R  = n <= 3 ? 10 : n <= 6 ? 16 : 22;
+    const cx = its.reduce((s, v) => s + v.x, 0) / n;
+    const cy = its.reduce((s, v) => s + v.y, 0) / n;
+
+    its.forEach((item, i) => {
+      const a  = (i / n) * 2 * Math.PI - Math.PI / 2;
+      const pt = map.unproject([cx + R * Math.cos(a), cy + R * Math.sin(a)]);
+      item.m.setLngLat([pt.lng, pt.lat]);
+    });
+  }
+
+  // Mettre à jour les popups ouverts après repositionnement
+  for (const m of mmap.values()) {
+    const popup = (m as any)._popup as maplibregl.Popup | undefined;
+    if (popup?.isOpen()) popup.setLngLat(m.getLngLat());
+  }
 }
 
-// Recreate all DOM markers (handles color changes too)
+// ── Marqueurs DOM ─────────────────────────────────────────────────────────────
+
 function syncMarkers(
   map: maplibregl.Map,
   networks: Network[],
@@ -146,74 +160,21 @@ function syncMarkers(
     const marker = new maplibregl.Marker({ element: el })
       .setLngLat([n.lon as number, n.lat as number])
       .addTo(map);
-    (marker as any)._orig = [n.lon as number, n.lat as number] as [number, number];
+
+    (marker as any)._orig  = [n.lon as number, n.lat as number] as [number, number];
+    (marker as any)._popup = popup;
 
     el.addEventListener('mouseenter', () => { if (!pinned) popup.addTo(map).setLngLat(marker.getLngLat()); });
     el.addEventListener('mouseleave', () => { if (!pinned) popup.remove(); });
-    el.addEventListener('click', (e) => {
+    el.addEventListener('click',      (e) => {
       e.stopPropagation();
       pinned = !pinned;
       if (pinned) popup.addTo(map).setLngLat(marker.getLngLat());
-      else popup.remove();
+      else        popup.remove();
     });
 
     mmap.set(key, marker);
   }
-}
-
-// Refresh visibility + spiderfy after any camera change
-function refreshMarkers(
-  map: maplibregl.Map,
-  mmap: MMap,
-  spiderRef: { current: Spider | null },
-): void {
-  // Restore original positions before recalculating
-  if (spiderRef.current) {
-    for (const [key, orig] of spiderRef.current) mmap.get(key)?.setLngLat(orig);
-    spiderRef.current = null;
-    setSpiderLines(map, []);
-  }
-
-  // Show/hide markers based on current cluster state
-  const unclust = new Set(
-    map.querySourceFeatures('networks', { filter: ['!', ['has', 'point_count']] })
-       .map(f => f.properties?.key as string).filter(Boolean)
-  );
-  for (const [key, m] of mmap) {
-    m.getElement().style.display = unclust.has(key) ? '' : 'none';
-  }
-
-  // Spiderfy visible markers that overlap on screen (zoom ≥ 13)
-  if (map.getZoom() < 13) return;
-
-  const visible = [...mmap.entries()]
-    .filter(([, m]) => m.getElement().style.display !== 'none')
-    .map(([key, m]) => { const p = map.project(m.getLngLat()); return { key, m, x: p.x, y: p.y }; });
-
-  const groups = spiderGroups(visible, 15);
-  if (!groups.length) return;
-
-  const byKey = new Map(visible.map(v => [v.key, v]));
-  const orig  = new Map<string, [number, number]>();
-  const lines: [number, number][][] = [];
-
-  for (const keys of groups) {
-    const items = keys.map(k => byKey.get(k)).filter((v): v is NonNullable<typeof v> => !!v);
-    const cx     = items.reduce((s, v) => s + v.x, 0) / items.length;
-    const cy     = items.reduce((s, v) => s + v.y, 0) / items.length;
-    const center = map.unproject([cx, cy]);
-
-    items.forEach((item, i) => {
-      const a  = (i / items.length) * 2 * Math.PI - Math.PI / 2;
-      const pt = map.unproject([cx + 28 * Math.cos(a), cy + 28 * Math.sin(a)]);
-      orig.set(item.key, item.m.getLngLat().toArray() as [number, number]);
-      item.m.setLngLat([pt.lng, pt.lat]);
-      lines.push([[center.lng, center.lat], [pt.lng, pt.lat]]);
-    });
-  }
-
-  spiderRef.current = orig;
-  setSpiderLines(map, lines);
 }
 
 // ── Composant ────────────────────────────────────────────────────────────────
@@ -222,7 +183,6 @@ export function NetworkMap({ networks, accent }: Props) {
   const containerRef  = useRef<HTMLDivElement>(null);
   const mapRef        = useRef<maplibregl.Map | null>(null);
   const markersRef    = useRef<MMap>(new Map());
-  const spiderfiedRef = useRef<Spider | null>(null);
   const networksRef   = useRef(networks);
   const opCountsRef   = useRef(new Map<string, { color: string; count: number }>());
 
@@ -270,86 +230,17 @@ export function NetworkMap({ networks, accent }: Props) {
       mapRef.current = map;
 
       recolorMap(map);
-
-      // GeoJSON source avec clustering
-      map.addSource('networks', {
-        type: 'geojson',
-        data: buildGeoJSON(networksRef.current),
-        cluster: true,
-        clusterMaxZoom: 14,
-        clusterRadius: 50,
-      } as any);
-
-      // Source vide pour les lignes de spiderfy
-      map.addSource('spider-lines', {
-        type: 'geojson',
-        data: { type: 'FeatureCollection', features: [] },
-      } as any);
-
-      // Cercles de clusters (3 tailles : 2–5 / 6–14 / 15+)
-      map.addLayer({
-        id: 'clusters', type: 'circle', source: 'networks',
-        filter: ['has', 'point_count'],
-        paint: {
-          'circle-color': 'rgba(246,249,237,0.15)',
-          'circle-radius': ['step', ['get', 'point_count'], 12, 6, 16, 15, 20],
-          'circle-stroke-width': 1.5,
-          'circle-stroke-color': 'rgba(246,249,237,0.35)',
-        } as any,
-      });
-
-      // Compteur dans le cercle
-      map.addLayer({
-        id: 'cluster-count', type: 'symbol', source: 'networks',
-        filter: ['has', 'point_count'],
-        layout: { 'text-field': '{point_count_abbreviated}', 'text-size': 12 } as any,
-        paint: { 'text-color': 'rgba(246,249,237,0.9)' } as any,
-      });
-
-      // Lignes de spiderfy
-      map.addLayer({
-        id: 'spider-lines', type: 'line', source: 'spider-lines',
-        paint: { 'line-color': 'rgba(246,249,237,0.35)', 'line-width': 1 } as any,
-      });
-
       syncMarkers(map, networksRef.current, opCountsRef.current, markersRef.current);
-      refreshMarkers(map, markersRef.current, spiderfiedRef);
+      spreadMarkers(map, markersRef.current);
 
-      // Clic sur cluster → zoom pour décluster
-      map.on('click', 'clusters', (e) => {
-        const feat = map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
-        if (!feat.length) return;
-        const cid = feat[0].properties?.cluster_id;
-        if (cid == null) return;
-        (map.getSource('networks') as any).getClusterExpansionZoom(
-          cid,
-          (err: Error | null, zoom: number) => {
-            if (err) return;
-            map.easeTo({ center: (feat[0].geometry as any).coordinates, zoom });
-          }
-        );
-      });
-
-      map.on('mouseenter', 'clusters', () => { map.getCanvas().style.cursor = 'pointer'; });
-      map.on('mouseleave', 'clusters', () => { map.getCanvas().style.cursor = ''; });
-
-      // Après tout déplacement/zoom : recalcul visibilité + spiderfy
-      const onCameraEnd = () => refreshMarkers(map, markersRef.current, spiderfiedRef);
-      map.on('moveend', onCameraEnd);
-      map.on('zoomend', onCameraEnd);
-
-      // Clic ailleurs → collapse spiderfy
-      map.on('click', (e) => {
-        if (map.queryRenderedFeatures(e.point, { layers: ['clusters'] }).length) return;
-        if (!spiderfiedRef.current) return;
-        for (const [key, orig] of spiderfiedRef.current) markersRef.current.get(key)?.setLngLat(orig);
-        spiderfiedRef.current = null;
-        setSpiderLines(map, []);
-      });
+      // Recalcul de l'écartement après chaque fin de déplacement ou zoom
+      map.on('moveend', () => spreadMarkers(map, markersRef.current));
+      map.on('zoomend', () => spreadMarkers(map, markersRef.current));
     };
 
-    map.on('load', tryInit);
+    map.on('load',      tryInit);
     map.on('styledata', tryInit);
+    // Polling de secours (~250 ms × 40 essais)
     const poll = setInterval(tryInit, 250);
     setTimeout(() => clearInterval(poll), 10_000);
 
@@ -359,17 +250,15 @@ export function NetworkMap({ networks, accent }: Props) {
       markersRef.current.clear();
       map.remove();
       mapRef.current = null;
-      spiderfiedRef.current = null;
     };
   }, []);
 
-  // Mise à jour quand les données changent
+  // Mise à jour des marqueurs quand les données changent
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.getSource('networks')) return;
-    (map.getSource('networks') as any).setData(buildGeoJSON(networks));
+    if (!map) return;
     syncMarkers(map, networks, opCounts, markersRef.current);
-    refreshMarkers(map, markersRef.current, spiderfiedRef);
+    spreadMarkers(map, markersRef.current);
   }, [networks, opCounts]);
 
   return (
@@ -413,7 +302,10 @@ export function NetworkMap({ networks, accent }: Props) {
             zIndex: 1, backdropFilter: 'blur(6px)',
           }}>
             {legendItems.map(({ label, color }) => (
-              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
+              <div key={label} style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                marginBottom: 5,
+              }}>
                 <span style={{
                   width: 9, height: 9, borderRadius: '50%',
                   background: color, border: '1.5px solid rgba(246,249,237,.7)',
