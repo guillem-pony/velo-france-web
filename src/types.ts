@@ -1,6 +1,7 @@
 export interface PeriodMetric {
   yesterday: number;
-  month: number;
+  thismonth: number;  // mois calendaire courant
+  month: number;      // mois calendaire précédent
   year: number;
   lastyear: number;
 }
@@ -62,23 +63,16 @@ export interface TripHistoryPoint {
 
 // ── Périodes ─────────────────────────────────────────────────────────────────
 
-// Period : clés des buckets backend (rides/km/minutes) — utilisé par StatsGrid
-export type Period = 'yesterday' | 'month' | 'year' | 'lastyear';
+// Period = ChartPeriod : 5 buckets backend (rides/km/minutes) + sélecteur + graphiques
+export type Period = 'yesterday' | 'thismonth' | 'month' | 'year' | 'lastyear';
 
 export const PERIOD_LABELS: Record<Period, string> = {
   yesterday: 'Hier',
-  month:     '30 derniers jours',  // bucket backend = 30 jours glissants
+  thismonth: 'Ce mois-ci',
+  month:     'Le mois dernier',
   year:      'Cette année',
   lastyear:  "L'an dernier",
 };
 
-// ChartPeriod : 5 périodes exposées par le sélecteur (+ utilisées par les graphiques)
-export type ChartPeriod = 'yesterday' | 'thismonth' | 'month' | 'year' | 'lastyear';
-
-export const CHART_PERIOD_LABELS: Record<ChartPeriod, string> = {
-  yesterday: 'Hier',
-  thismonth: '30 derniers jours',  // = bucket "month" (30 jours glissants)
-  month:     'Le mois dernier',    // mois calendaire précédent — graphiques uniquement
-  year:      'Cette année',
-  lastyear:  "L'an dernier",
-};
+export type ChartPeriod = Period;
+export const CHART_PERIOD_LABELS = PERIOD_LABELS;

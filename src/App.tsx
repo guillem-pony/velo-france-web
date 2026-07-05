@@ -21,13 +21,6 @@ export default function App() {
   const [period, setPeriod] = useState<ChartPeriod>('year');
   const { data } = useStats(STATS_URL);
 
-  // ChartPeriod → Period pour StatsGrid (buckets backend : yesterday/month/year/lastyear)
-  // 'thismonth' → 'month' (30 jours glissants)
-  // 'month' (Le mois dernier calendaire) → null : pas de bucket backend, StatsGrid masqué
-  const statPeriod: Period | null =
-    period === 'thismonth' ? 'month'      :
-    period === 'month'     ? null         :
-    period as Period;
 
   const cssVars = {
     '--accent':        ACCENT,
@@ -49,15 +42,13 @@ export default function App() {
 
         <PeriodSelector period={period} onChange={setPeriod} />
 
-        {statPeriod && (
-          <StatsGrid
-            period={statPeriod}
-            rides={data.rides}
-            km={data.km}
-            minutes={data.minutes}
-            animate
-          />
-        )}
+        <StatsGrid
+          period={period}
+          rides={data.rides}
+          km={data.km}
+          minutes={data.minutes}
+          animate
+        />
 
         <GrowthChart period={period} data={data} />
 

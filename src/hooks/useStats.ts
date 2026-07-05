@@ -93,9 +93,9 @@ const FALLBACK: StatsPayload = {
     { id: 'martinique-velo',name:'Vélos Martinique',   city: 'Fort-de-France', lat: 14.6037, lon: -61.0694,vehicles_available:   120 },
     { id: 'reunion-velo',  name: 'Vélos Réunion',      city: 'Saint-Denis',    lat:-20.8823, lon:  55.4504, vehicles_available:   100 },
   ],
-  rides:   { yesterday: 1240,  month:  38200, year:  214500, lastyear:  356800 },
-  km:      { yesterday: 3120,  month:  96400, year:  540300, lastyear:  889200 },
-  minutes: { yesterday: 18600, month: 561000, year: 3140000, lastyear: 5210000 },
+  rides:   { yesterday: 1240, thismonth:  12000, month:  38200, year:  214500, lastyear:  356800 },
+  km:      { yesterday: 3120, thismonth:  30000, month:  96400, year:  540300, lastyear:  889200 },
+  minutes: { yesterday: 18600, thismonth: 175000, month: 561000, year: 3140000, lastyear: 5210000 },
   available_monthly: [],
   stale: false,
 };
