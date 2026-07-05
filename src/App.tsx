@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useStats } from './hooks/useStats';
 import { hexA } from './utils';
-import type { ChartPeriod, Period } from './types';
+import type { ChartPeriod } from './types';
 
 import { Nav }            from './components/Nav';
 import { Hero }           from './components/Hero';
