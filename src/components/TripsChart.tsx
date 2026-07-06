@@ -117,6 +117,13 @@ export function TripsChart({ period, data }: Props) {
   const renderKey = `${period}-${data.updated_at}`;
   const gap       = bars.length > 25 ? 2 : bars.length > 10 ? 4 : 6;
 
+  // Modes d'affichage des valeurs selon le nombre de barres
+  const n           = bars.length;
+  const isHero      = n === 1;                  // 1 barre → chiffre héro au-dessus
+  const labelAbove  = !isHero && n <= 10;       // 2–10 barres → label horizontal au-dessus
+  const labelInside = n > 10;                   // >10 barres → texte vertical dans la barre
+  const extraPad    = isHero ? 60 : labelAbove ? 28 : 0;
+
   return (
     <div style={{
       background: 'rgba(246,249,237,.05)', border: '1px solid rgba(246,249,237,.12)',
@@ -149,7 +156,7 @@ export function TripsChart({ period, data }: Props) {
 
       {/* Barres + axe X (animés ensemble à chaque changement de période) */}
       <div key={renderKey} className="chart-enter">
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap, height: CHART_H }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap, height: CHART_H + extraPad }}>
           {bars.map(({ key, tooltip, value }) => {
             if (value === null) {
               return (
@@ -164,20 +171,46 @@ export function TripsChart({ period, data }: Props) {
                 />
               );
             }
-            const h       = Math.max(18, Math.round(6 + (value / maxVal) * (CHART_H - 10)));
-            const showTxt = h >= 50;
+            const h = Math.max(18, Math.round(6 + (value / maxVal) * (CHART_H - 10)));
             return (
               <div
                 key={key}
                 title={tooltip}
                 style={{
+                  position: 'relative',
                   flex: 1, minWidth: 3, height: h,
                   background: barFill, borderRadius: '2px 2px 0 0',
-                  overflow: 'hidden', display: 'flex', alignItems: 'flex-start',
+                  overflow: labelInside ? 'hidden' : 'visible',
+                  display: 'flex', alignItems: 'flex-start',
                   cursor: 'default',
                 }}
               >
-                {showTxt && (
+                {/* Chiffre héro — 1 barre (vue "Hier") */}
+                {isHero && (
+                  <span style={{
+                    position: 'absolute', bottom: '100%',
+                    left: '50%', transform: 'translateX(-50%)',
+                    paddingBottom: 14,
+                    font: "700 32px 'Poppins'", fontVariantNumeric: 'tabular-nums',
+                    color: 'rgba(246,249,237,.9)', whiteSpace: 'nowrap',
+                  }}>
+                    {value.toLocaleString('fr-FR')}
+                  </span>
+                )}
+                {/* Label horizontal au-dessus — 2 à 10 barres */}
+                {labelAbove && (
+                  <span style={{
+                    position: 'absolute', bottom: '100%',
+                    left: '50%', transform: 'translateX(-50%)',
+                    paddingBottom: 5,
+                    font: "600 13px 'Poppins'", fontVariantNumeric: 'tabular-nums',
+                    color: 'rgba(246,249,237,.9)', whiteSpace: 'nowrap',
+                  }}>
+                    {value.toLocaleString('fr-FR')}
+                  </span>
+                )}
+                {/* Texte vertical dans la barre — >10 barres */}
+                {labelInside && h >= 50 && (
                   <span style={{
                     writingMode: 'vertical-rl', transform: 'rotate(180deg)',
                     font: "600 9px 'Poppins'", fontVariantNumeric: 'tabular-nums',
