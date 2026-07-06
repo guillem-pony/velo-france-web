@@ -14,8 +14,8 @@ export function Footer({ updatedAt }: Props) {
       <div style={{ font: "400 12px/1.7 'Poppins'", color: 'rgba(246,249,237,.5)', maxWidth: 620 }}>
         <strong style={{ color: 'rgba(246,249,237,.75)', fontWeight: 600 }}>Sources.</strong>{' '}
         Disponibilité temps réel : flux ouverts GBFS agrégés via l'API du Point d'Accès National
-        (transport.data.gouv.fr). Trajets, kilomètres et minutes : données d'usage Pony agrégées
-        via MDS. Fond cartographique : © OpenStreetMap, © CARTO.
+        (transport.data.gouv.fr). Trajets, kilomètres et minutes : données d'usage agrégées
+        via les API MDS fournies par les opérateurs. Fond cartographique : © OpenStreetMap, © CARTO.
       </div>
       <div style={{ font: "500 12px 'Poppins'", color: 'rgba(246,249,237,.5)' }}>
         Mis à jour : {fmtTime(updatedAt)}
